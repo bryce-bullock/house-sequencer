@@ -1,676 +1,320 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Pregame House Beats</title>
-<style>
-  :root{
-    --bg:#0b0d10; --panel:#12161b; --accent:#7fffd4; --muted:#2a3038; --text:#e8f0f7; --sub:#a8b3c2;
-    --kick:#ff6b6b; --snare:#ffd166; --hat:#06d6a0; --clap:#4cc9f0; --bass:#c77dff; --pad:#72efdd;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;background:linear-gradient(180deg,#080a0d,#0b0d10);color:var(--text);font:16px/1.35 system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;}
-  header{padding:18px 20px;border-bottom:1px solid #17202a;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
-  header h1{margin:0;font-size:18px;letter-spacing:.5px}
-  header .badge{padding:6px 10px;border:1px solid #1f2a35;border-radius:999px;color:var(--sub)}
-  main{max-width:1100px;margin:18px auto;padding:0 14px 40px;display:grid;gap:18px}
-  .panel{background:var(--panel);border:1px solid #1a2330;border-radius:14px;box-shadow:0 6px 30px rgba(0,0,0,.25)}
-  .controls{display:grid;grid-template-columns:1.2fr .8fr .8fr;gap:12px;padding:14px}
-  .section{border-top:1px solid #1a2330;padding:12px 14px}
-  .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-  .knob{display:grid;gap:6px;min-width:150px}
-  label{font-size:12px;color:var(--sub)}
-  input[type="range"]{width:100%}
-  button, select{background:#0e1318;color:var(--text);border:1px solid #263140;border-radius:10px;padding:10px 12px;cursor:pointer}
-  button:hover{border-color:#34506b}
-  .grid{padding:12px 14px}
-  .track{display:grid;grid-template-columns:120px repeat(16,1fr);gap:6px;align-items:center;margin:8px 0}
-  .track .name{font-size:13px;color:var(--sub)}
-  .cell{height:34px;border:1px solid #263140;border-radius:8px;background:#0e1318;display:grid;place-items:center;user-select:none;cursor:pointer;transition:transform .05s}
-  .cell.active{box-shadow:inset 0 0 0 2px #ffffff20}
-  .cell.pulse{transform:scale(1.06)}
-  .legend{display:flex;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--sub)}
-  .chip{border:1px solid #263140;background:#0e1318;padding:6px 8px;border-radius:8px}
-  .barline:nth-child(4n+2){background:#0b0f14}
-  .playing{outline:2px solid var(--accent)}
-  .color-kick{background:linear-gradient(0deg,#221416,#0e1318)}
-  .color-snare{background:linear-gradient(0deg,#2c2513,#0e1318)}
-  .color-hat{background:linear-gradient(0deg,#122923,#0e1318)}
-  .color-clap{background:linear-gradient(0deg,#13222c,#0e1318)}
-  .color-bass{background:linear-gradient(0deg,#221a2a,#0e1318)}
-  .color-pad{background:linear-gradient(0deg,#142427,#0e1318)}
-  .footer{display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap}
-  .hint{color:var(--sub);font-size:12px}
-  .pill{padding:8px 10px;border:1px dashed #2a3643;border-radius:999px}
-  .stack{display:grid;gap:8px}
-  .small{font-size:12px;color:var(--sub)}
-  @media (max-width:840px){
-    .controls{grid-template-columns:1fr}
-    .track{grid-template-columns:84px repeat(16,1fr)}
-    .cell{height:30px}
-  }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DJ Groove Station</title>
+    <style>
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        #app {
+            width: 800px;
+            height: 600px;
+            background: linear-gradient(to bottom, #111, #222);
+            border: 2px solid #333;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            gap: 20px;
+        }
+        h1 {
+            text-align: center;
+            font-size: 24px;
+            margin: 0;
+            color: #0f0;
+            text-shadow: 0 0 5px #0f0;
+        }
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        button {
+            background-color: #333;
+            border: 1px solid #555;
+            color: #fff;
+            font-size: 16px;
+            padding: 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.2s;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        button:hover {
+            background-color: #444;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+        }
+        button.active {
+            background-color: #0f0;
+            color: #000;
+            box-shadow: 0 0 20px #0f0;
+        }
+        .preset-btn {
+            background-color: #222;
+            border-color: #0f0;
+        }
+        .add-sound-btn {
+            background-color: #222;
+            border-color: #00f;
+        }
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+        }
+    </style>
 </head>
 <body>
-  <header>
-    <h1>🎛️ Pregame House Beats</h1>
-    <div class="badge">16-step | drums + bass + pad | record to WAV</div>
-  </header>
-
-  <main>
-    <div class="panel controls">
-      <div class="stack">
-        <div class="row">
-          <button id="startStop">▶ Start</button>
-          <button id="clear">⟲ Clear</button>
-          <button id="randomize">✨ Randomize</button>
-          <select id="preset">
-            <option value="">Presets…</option>
-            <option value="dom">Dom-ish (club)</option>
-            <option value="rufus">RÜFÜS-ish (lush)</option>
-          </select>
-          <button id="recordBtn">⏺ Record</button>
-          <a id="downloadLink" style="display:none" download="pregame-beat.wav">Download recording</a>
+    <div id="app">
+        <h1>DJ Groove Station</h1>
+        <div class="controls">
+            <button class="preset-btn" onclick="startPreset('deep')">Deep House Preset</button>
+            <button class="preset-btn" onclick="startPreset('tech')">Tech House Preset</button>
+            <button onclick="stopAll()">Stop</button>
+            <button class="add-sound-btn" onclick="addSynth('lead')">Add Synth Lead</button>
+            <button class="add-sound-btn" onclick="addSynth('pad')">Add Atmospheric Pad</button>
+            <button class="add-sound-btn" onclick="addRandomTameSound()">Add Random Tame Sound</button>
         </div>
-        <div class="legend">
-          <span class="chip">Click cells to toggle. Bass/Pad cells cycle notes: off → root → ♭3 → 5 → 8.</span>
-          <span class="chip">Tap & hold a cell for velocity (drums) or note accent (melody).</span>
-        </div>
-      </div>
-
-      <div class="stack">
-        <div class="knob">
-          <label>Tempo <span id="bpmVal">120 BPM</span></label>
-          <input type="range" id="bpm" min="80" max="136" value="120" step="1" />
-        </div>
-        <div class="knob">
-          <label>Swing <span id="swingVal">10%</span></label>
-          <input type="range" id="swing" min="0" max="60" value="10" step="1" />
-        </div>
-        <div class="row">
-          <div class="knob" style="min-width:130px">
-            <label>Key</label>
-            <select id="keyRoot">
-              <option>A</option><option>B♭">B♭</option><option>B">B</option>
-              <option selected>C">C</option><option>C#">C#</option><option>D">D</option>
-              <option>E♭">E♭</option><option>E">E</option><option>F">F</option>
-              <option>F#">F#</option><option>G">G</option><option>A♭">A♭</option>
-            </select>
-          </div>
-          <div class="knob" style="min-width:140px">
-            <label>Scale</label>
-            <select id="scale">
-              <option value="minor" selected>Minor</option>
-              <option value="major">Major</option>
-              <option value="dorian">Dorian</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div class="stack">
-        <div class="row">
-          <div class="knob"><label>Master Volume</label><input id="masterVol" type="range" min="0" max="1" step="0.01" value="0.85"></div>
-          <div class="knob"><label>Low-Pass Filter</label><input id="lpCut" type="range" min="200" max="18000" step="1" value="14000"></div>
-          <div class="knob"><label>Delay Send</label><input id="delaySend" type="range" min="0" max="1" step="0.01" value="0.25"></div>
-          <div class="knob"><label>Sidechain Pump</label><input id="pump" type="range" min="0" max="1" step="0.01" value="0.6"></div>
-        </div>
-        <div class="small">Tip: sweep the low-pass + crank pump for Dom-style drops; open filter + delay for RÜFÜS-y space.</div>
-      </div>
+        <div class="footer">Inspired by Rufus Du Sol, John Summit, Chris Lake, Dom Dolla & Tame Impala vibes</div>
     </div>
+    <script>
+        let audioCtx = null;
+        let isPlaying = false;
+        let nextNoteTime = 0;
+        let scheduleAheadTime = 0.1;
+        let currentNote = 0;
+        let tempo = 128; // BPM
+        let secondsPerBeat = 60 / tempo;
+        let drumPatterns = {};
+        let bassPatterns = {};
+        let activeSynths = [];
+        let presetType = '';
 
-    <div class="panel grid" id="grid"></div>
-
-    <div class="panel section footer">
-      <div class="hint">Made with the Web Audio API. No samples required — drums are synthesized, bass/pad are analog-style synths. </div>
-      <div class="pill">📝 Export pattern (JSON): <button id="copyJSON">Copy</button> <button id="pasteJSON">Paste</button></div>
-    </div>
-  </main>
-
-<script>
-(() => {
-  // ---------- Audio Engine ----------
-  const audio = {
-    ctx: null, master: null, comp: null, limiter: null, lp: null,
-    delay: null, delayGain: null, delayFeedback: null,
-    mixSend: null, sidechain: null, scGain: null, streamDest: null, mediaRec: null, chunks: []
-  };
-
-  function initAudio(){
-    if(audio.ctx) return;
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const master = ctx.createGain(); master.gain.value = 0.85;
-    const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 14000; lp.Q.value = 0.5;
-    const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -18; comp.knee.value = 24; comp.ratio.value = 3; comp.attack.value = 0.005; comp.release.value = .1;
-    // Simple limiter via compressor + gain staging
-    const limiter = ctx.createDynamicsCompressor(); limiter.threshold.value = -3; limiter.knee.value = 0; limiter.ratio.value = 20; limiter.attack.value = 0.001; limiter.release.value = .05;
-
-    // Delay send/return
-    const delay = ctx.createDelay(1.2); delay.delayTime.value = 0.32; // ~dotted 8th at ~140 bpm-ish; musical enough
-    const delayFeedback = ctx.createGain(); delayFeedback.gain.value = 0.35;
-    const delayGain = ctx.createGain(); delayGain.gain.value = 0.25; // send amount (per-track tweak via send nodes)
-    delay.connect(delayFeedback).connect(delay);
-    const delayReturn = ctx.createGain(); delayReturn.gain.value = 0.8;
-
-    // Sidechain "pump": use a fast compressor envelope controlled by a hidden kick env
-    const sidechain = ctx.createGain(); sidechain.gain.value = 1.0;
-    const scGain = ctx.createGain(); scGain.gain.value = 0.6;
-
-    // routing
-    const mix = ctx.createGain(); mix.gain.value = 1;
-    const streamDest = ctx.createMediaStreamDestination();
-
-    // mix: [tracks]->(sidechain)->lp->comp->limiter->[master]->dest+stream
-    mix.connect(sidechain).connect(lp).connect(comp).connect(limiter).connect(master).connect(ctx.destination);
-    master.connect(streamDest);
-
-    // delay return into mix
-    delay.connect(delayReturn).connect(mix);
-
-    audio.ctx = ctx; audio.master = master; audio.comp = comp; audio.limiter = limiter;
-    audio.lp = lp; audio.delay = delay; audio.delayGain = delayGain; audio.delayFeedback = delayFeedback;
-    audio.mix = mix; audio.delayReturn = delayReturn; audio.sidechain = sidechain; audio.scGain = scGain;
-    audio.streamDest = streamDest;
-
-    // MediaRecorder for WAV
-    if (window.MediaRecorder && MediaRecorder.isTypeSupported('audio/webm')) {
-      audio.mediaRec = new MediaRecorder(streamDest.stream);
-      audio.mediaRec.ondataavailable = e => audio.chunks.push(e.data);
-      audio.mediaRec.onstop = () => {
-        const blob = new Blob(audio.chunks, {type:'audio/webm'});
-        audio.chunks = [];
-        // convert to wav via OfflineAudioContext render? Simpler: offer webm; or we rename to webm.
-        // For wide compatibility, we'll keep .webm container.
-        const url = URL.createObjectURL(blob);
-        const a = document.getElementById('downloadLink');
-        a.href = url; a.download = 'pregame-beat.webm';
-        a.style.display = 'inline-block';
-      };
-    }
-
-    // instruments create their own delay sends; global send is audio.delayGain
-  }
-
-  // ---------- Music Theory Helpers ----------
-  const NOTE_TO_SEMITONE = { 'C':0,'C#':1,'D':2,'E♭':3,'E':4,'F':5,'F#':6,'G':7,'A♭':8,'A':9,'B♭':10,'B':11 };
-  function noteFreq(semitone){ return 440 * Math.pow(2,(semitone-57)/12); } // 57=A3
-  function scaleSemitones(type='minor'){
-    if(type==='major') return [0,2,4,5,7,9,11];
-    if(type==='dorian') return [0,2,3,5,7,9,10];
-    return [0,2,3,5,7,8,10]; // natural minor (aeolian)
-  }
-
-  // ---------- Instruments (procedural) ----------
-  function Kick(){ // synthesized: sine with pitch sweep + click
-    const ctx = audio.ctx;
-    const out = ctx.createGain(); out.gain.value = 0.9;
-    const send = ctx.createGain(); send.gain.value = 0.1; // to delay
-    out.connect(audio.mix); out.connect(send).connect(audio.delay);
-    return {
-      trigger(time, vel=1){
-        const osc = ctx.createOscillator(); osc.type='sine';
-        const gain = ctx.createGain(); gain.gain.setValueAtTime(0.001,time);
-        osc.connect(gain).connect(out);
-        // pitch env
-        osc.frequency.setValueAtTime(130,time);
-        osc.frequency.exponentialRampToValueAtTime(45,time+0.09);
-        // amp env
-        gain.gain.exponentialRampToValueAtTime(0.9*vel, time+0.001);
-        gain.gain.exponentialRampToValueAtTime(0.0001, time+0.25);
-        osc.start(time); osc.stop(time+0.3);
-
-        // sidechain pump: dip mix gain briefly
-        const sc = audio.sidechain.gain;
-        const depth = Number(document.getElementById('pump').value);
-        if(depth>0){
-          sc.cancelScheduledValues(time);
-          sc.setValueAtTime(1, time);
-          sc.linearRampToValueAtTime(1-Math.min(0.85,depth), time+0.02);
-          sc.linearRampToValueAtTime(1, time+0.25);
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
         }
-      }
-    };
-  }
 
-  function Snare(){
-    const ctx = audio.ctx;
-    const out = ctx.createGain(); out.gain.value = 0.6;
-    const send = ctx.createGain(); send.gain.value = 0.2;
-    out.connect(audio.mix); out.connect(send).connect(audio.delay);
-    const noiseBuf = (()=>{ // white noise buffer
-      const b = ctx.createBuffer(1, ctx.sampleRate*1.0, ctx.sampleRate);
-      const data = b.getChannelData(0); for(let i=0;i<data.length;i++) data[i]=Math.random()*2-1;
-      return b;
-    })();
-    return {
-      trigger(time, vel=1){
-        // noise burst
-        const noise = ctx.createBufferSource(); noise.buffer=noiseBuf;
-        const bp = ctx.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=1800; bp.Q.value=0.6;
-        const gain = ctx.createGain(); gain.gain.setValueAtTime(0.0001,time);
-        noise.connect(bp).connect(gain).connect(out);
-        gain.gain.exponentialRampToValueAtTime(0.7*vel, time+0.001);
-        gain.gain.exponentialRampToValueAtTime(0.0001, time+0.18);
-        noise.start(time); noise.stop(time+0.2);
+        function playSound(freq, type, duration, time, volume = 1, envelope = true) {
+            const osc = audioCtx.createOscillator();
+            osc.type = type;
+            osc.frequency.value = freq;
 
-        // body tone
-        const osc = ctx.createOscillator(); osc.type='triangle'; osc.frequency.setValueAtTime(180,time);
-        const og = ctx.createGain(); og.gain.setValueAtTime(0.0001,time);
-        osc.connect(og).connect(out);
-        og.gain.exponentialRampToValueAtTime(0.4*vel,time+0.005);
-        og.gain.exponentialRampToValueAtTime(0.0001,time+0.12);
-        osc.start(time); osc.stop(time+0.15);
-      }
-    };
-  }
+            const gain = audioCtx.createGain();
+            gain.gain.value = 0;
 
-  function Hat(){
-    const ctx = audio.ctx;
-    const out = ctx.createGain(); out.gain.value = 0.35;
-    const send = ctx.createGain(); send.gain.value = 0.12;
-    out.connect(audio.mix); out.connect(send).connect(audio.delay);
-    const noiseBuf = (()=>{ const b=ctx.createBuffer(1, ctx.sampleRate*0.5, ctx.sampleRate); const d=b.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1; return b;})();
-    return {
-      trigger(time, vel=1, open=false){
-        const noise = ctx.createBufferSource(); noise.buffer=noiseBuf; noise.loop=false;
-        const hp = ctx.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=open?7000:9000; hp.Q.value=0.7;
-        const gain = ctx.createGain(); gain.gain.setValueAtTime(0.0001,time);
-        noise.connect(hp).connect(gain).connect(out);
-        let len = open?0.25:0.06;
-        gain.gain.exponentialRampToValueAtTime((open?0.5:0.35)*vel, time+0.001);
-        gain.gain.exponentialRampToValueAtTime(0.0001, time+len);
-        noise.start(time); noise.stop(time+len+0.02);
-      }
-    };
-  }
+            if (envelope) {
+                gain.gain.setValueAtTime(volume, time);
+                gain.gain.exponentialRampToValueAtTime(0.01, time + duration);
+            } else {
+                gain.gain.value = volume;
+            }
 
-  function Clap(){
-    const ctx = audio.ctx;
-    const out = ctx.createGain(); out.gain.value = 0.5;
-    const send = ctx.createGain(); send.gain.value = 0.25;
-    out.connect(audio.mix); out.connect(send).connect(audio.delay);
-    const noiseBuf = (()=>{ const b=ctx.createBuffer(1, ctx.sampleRate*0.5, ctx.sampleRate); const d=b.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1; return b;})();
-    return {
-      trigger(time, vel=1){
-        // multi-burst clap
-        const burstTimes = [0, 0.012, 0.025, 0.045];
-        burstTimes.forEach((t,i)=>{
-          const n = audio.ctx.createBufferSource(); n.buffer=noiseBuf;
-          const bp = audio.ctx.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=1800; bp.Q.value=0.9;
-          const g = audio.ctx.createGain(); g.gain.setValueAtTime(0.0001,time+t);
-          n.connect(bp).connect(g).connect(out);
-          const v = (0.6 - i*0.12) * vel;
-          g.gain.exponentialRampToValueAtTime(v, time+t+0.001);
-          g.gain.exponentialRampToValueAtTime(0.0001, time+t+0.18 + i*0.02);
-          n.start(time+t); n.stop(time+t+0.25);
-        });
-      }
-    };
-  }
+            osc.connect(gain).connect(audioCtx.destination);
+            osc.start(time);
+            osc.stop(time + duration);
+        }
 
-  function MonoSynth({color='saw', cutoff=800, res=0.3, attack=0.005, decay=0.15, sustain=0.6, release=0.2, port=0.002, gain=0.5, delaySend=0.25}={}){
-    const ctx = audio.ctx;
-    const out = ctx.createGain(); out.gain.value = gain;
-    const vcf = ctx.createBiquadFilter(); vcf.type='lowpass'; vcf.frequency.value = cutoff; vcf.Q.value = res;
-    const send = ctx.createGain(); send.gain.value = delaySend;
-    out.connect(audio.mix); out.connect(send).connect(audio.delay);
-    let lastFreq = 0;
-    function wave(){
-      const o = ctx.createOscillator(); o.type = (color==='saw'?'sawtooth': color==='square'?'square':'triangle');
-      return o;
-    }
-    return {
-      trigger(time, freq, vel=1, dur=0.25){
-        const o = wave(); const g = ctx.createGain(); const eg = ctx.createGain(); eg.gain.value=1;
-        o.connect(vcf).connect(g).connect(out);
-        // Filter envelope light bump
-        const f0 = Math.max(150, freq*1.4);
-        vcf.frequency.cancelScheduledValues(time);
-        vcf.frequency.setTargetAtTime(f0, time, 0.005);
-        vcf.frequency.setTargetAtTime(Math.max(120, f0*0.6), time+attack+decay, 0.1);
+        function playKick(time) {
+            const osc = audioCtx.createOscillator();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(150, time);
+            osc.frequency.exponentialRampToValueAtTime(0.01, time + 0.2);
 
-        // Glide a touch
-        if(lastFreq===0) lastFreq = freq;
-        o.frequency.setValueAtTime(lastFreq, time);
-        o.frequency.exponentialRampToValueAtTime(freq, time + port);
-        lastFreq = freq;
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(1, time);
+            gain.gain.exponentialRampToValueAtTime(0.01, time + 0.2);
 
-        // Amp ADSR
-        const a=attack,d=decay,s=sustain*vel,r=release;
-        g.gain.cancelScheduledValues(time);
-        g.gain.setValueAtTime(0.0001, time);
-        g.gain.linearRampToValueAtTime(0.9*vel, time+a);
-        g.gain.linearRampToValueAtTime(0.9*vel*s, time+a+d);
-        g.gain.setTargetAtTime(0.0001, time+Math.max(dur, a+d), r);
+            osc.connect(gain).connect(audioCtx.destination);
+            osc.start(time);
+            osc.stop(time + 0.2);
+        }
 
-        o.start(time);
-        o.stop(time + Math.max(dur + r + .05, .1));
-      },
-      out, vcf
-    };
-  }
+        function playSnare(time) {
+            const noise = audioCtx.createBufferSource();
+            const buffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.05, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < data.length; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+            noise.buffer = buffer;
 
-  // ---------- Pattern + Sequencer ----------
-  const STEPS = 16;
-  const tracks = [
-    {id:'kick',  name:'Kick',  color:'var(--kick)',  type:'drum', cells:Array(STEPS).fill(0), vel:Array(STEPS).fill(0.9)},
-    {id:'snare', name:'Snare', color:'var(--snare)', type:'drum', cells:Array(STEPS).fill(0), vel:Array(STEPS).fill(0.9)},
-    {id:'hat',   name:'Hat',   color:'var(--hat)',   type:'drum', cells:Array(STEPS).fill(0), vel:Array(STEPS).fill(0.8)},
-    {id:'clap',  name:'Clap',  color:'var(--clap)',  type:'drum', cells:Array(STEPS).fill(0), vel:Array(STEPS).fill(0.85)},
-    {id:'bass',  name:'Bass',  color:'var(--bass)',  type:'note', cells:Array(STEPS).fill(0), vel:Array(STEPS).fill(1.0)},
-    {id:'pad',   name:'Pad',   color:'var(--pad)',   type:'note', cells:Array(STEPS).fill(0), vel:Array(STEPS).fill(1.0)},
-  ];
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'highpass';
+            filter.frequency.value = 1000;
 
-  let bpm = 120, swing = 0.10;
-  let isPlaying = false, currentStep = 0, timer=null, nextNoteTime=0;
-  let kick,snare,hat,clap,bass,pad;
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(0.7, time);
+            gain.gain.exponentialRampToValueAtTime(0.01, time + 0.2);
 
-  function setupInstruments(){
-    kick = Kick();
-    snare = Snare();
-    hat = Hat();
-    clap = Clap();
-    bass = MonoSynth({color:'saw', cutoff:700, res:0.6, gain:0.55, delaySend:0.12});
-    pad  = MonoSynth({color:'triangle', cutoff:1800, res:0.2, gain:0.35, delaySend:0.35});
-  }
+            noise.connect(filter).connect(gain).connect(audioCtx.destination);
+            noise.start(time);
+        }
 
-  function stepDuration(){ return 60/bpm/4; } // 16th
-  function swingOffset(stepIndex){
-    // Apply swing to even 16ths (1-based "and" notes)
-    if(stepIndex%2===1) return (stepDuration()*swing*0.5);
-    return 0;
-  }
+        function playHiHat(time, open = false) {
+            const noise = audioCtx.createBufferSource();
+            const buffer = audioCtx.createBuffer(1, audioCtx.sampleRate * (open ? 0.3 : 0.02), audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < data.length; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+            noise.buffer = buffer;
 
-  function scheduleStep(step, time){
-    // Visual pulse
-    highlightColumn(step);
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'highpass';
+            filter.frequency.value = 5000;
 
-    const root = document.getElementById('keyRoot').value.replace('"','');
-    const scale = document.getElementById('scale').value;
-    const keyRootSemis = NOTE_TO_SEMITONE[root] ?? 0;
-    const scaleSet = scaleSemitones(scale);
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(0.3, time);
+            gain.gain.exponentialRampToValueAtTime(0.01, time + (open ? 0.3 : 0.05));
 
-    // helper: value → semitone offset in scale degrees (0 root, 1 m3, 2 5th, 3 8ve)
-    const valueToScaleDegree = v => ([0, 2, 4, 7][v-1]); // 0(off),1(root=0),2(♭3≈3 but for dorian/major we use scale degrees by index 2),3(5th),4(8ve)
-    // better: pick degrees per mode
-    function mapValueToSemitone(v){
-      if(v===0) return null;
-      const degrees = { major:[0,2,4,7], minor:[0,3,7,12], dorian:[0,3,7,12] };
-      const table = degrees[scale] || degrees.minor;
-      return table[v-1];
-    }
+            noise.connect(filter).connect(gain).connect(audioCtx.destination);
+            noise.start(time);
+        }
 
-    const baseOct = 36; // C2-ish for bass
-    tracks.forEach((t, ti)=>{
-      const v = t.cells[step];
-      const vel = t.vel[step] || 1;
-      if(t.type==='drum'){
-        if(!v) return;
-        if(t.id==='kick') kick.trigger(time, vel);
-        if(t.id==='snare') snare.trigger(time, vel);
-        if(t.id==='hat')   hat.trigger(time, vel, false);
-        if(t.id==='clap')  clap.trigger(time, vel);
-      }else{
-        const semi = mapValueToSemitone(v);
-        if(semi===null) return;
-        const midi = (t.id==='bass' ? baseOct : baseOct+12) + keyRootSemis + semi;
-        const freq = noteFreq(midi);
-        const dur = (t.id==='pad' ? stepDuration()*4 : stepDuration()*0.95);
-        if(t.id==='bass') bass.trigger(time, freq, vel, dur);
-        if(t.id==='pad')  pad.trigger(time, freq*0.5, vel*0.8, dur*1.2);
-      }
-    });
-  }
+        function playBass(note, time) {
+            playSound(note, 'sawtooth', secondsPerBeat / 2, time, 0.6);
+        }
 
-  function scheduler(){
-    while(audio.ctx.currentTime + 0.1 >= nextNoteTime){
-      scheduleStep(currentStep, nextNoteTime);
-      const thisDur = stepDuration();
-      const off = swingOffset(currentStep);
-      nextNoteTime += thisDur + off;
-      currentStep = (currentStep + 1) % STEPS;
-    }
-  }
+        function createSynth(type) {
+            const osc = audioCtx.createOscillator();
+            osc.type = type === 'lead' ? 'sawtooth' : 'sine';
+            osc.frequency.value = type === 'lead' ? 440 : 220; // A4 or A3
 
-  function start(){
-    initAudio(); setupInstruments();
-    // rewire globals according to UI
-    updateMaster();
-    nextNoteTime = audio.ctx.currentTime + 0.06;
-    isPlaying = true;
-    timer = setInterval(scheduler, 25);
-    document.getElementById('startStop').textContent = '⏸ Pause';
-  }
-  function stop(){
-    isPlaying = false;
-    clearInterval(timer); timer=null;
-    document.getElementById('startStop').textContent = '▶ Start';
-    clearHighlight();
-  }
+            const gain = audioCtx.createGain();
+            gain.gain.value = 0.3;
 
-  // ---------- UI: Grid ----------
-  const gridEl = document.getElementById('grid');
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.value = type === 'lead' ? 800 : 400;
 
-  function buildGrid(){
-    gridEl.innerHTML = '';
-    tracks.forEach((t, i)=>{
-      const row = document.createElement('div');
-      row.className = 'track';
-      const name = document.createElement('div');
-      name.className = 'name';
-      name.textContent = t.name;
-      name.style.color = t.color;
-      row.appendChild(name);
-      for(let s=0; s<STEPS; s++){
-        const cell = document.createElement('div');
-        cell.className = 'cell barline color-' + t.id;
-        cell.dataset.track = i; cell.dataset.step = s;
-        cell.style.borderColor = '#263140';
-        cell.addEventListener('click', () => {
-          handleCellClick(cell, t);
-        });
-        // velocity via press & hold
-        let pressTimer=null;
-        cell.addEventListener('mousedown', () => {
-          pressTimer = setTimeout(()=> editVelocity(cell, t), 320);
-        });
-        ['mouseup','mouseleave','touchend'].forEach(ev=>cell.addEventListener(ev, ()=>clearTimeout(pressTimer)));
-        row.appendChild(cell);
-      }
-      gridEl.appendChild(row);
-    });
-    refreshGrid();
-  }
+            osc.connect(filter).connect(gain).connect(audioCtx.destination);
+            osc.start();
+            return { osc, gain, filter };
+        }
 
-  function handleCellClick(cell, track){
-    const step = Number(cell.dataset.step);
-    if(track.type==='drum'){
-      track.cells[step] = track.cells[step] ? 0 : 1;
-    } else {
-      // cycle 0→1→2→3→4→0 (off, root, ♭3/3, 5, 8)
-      track.cells[step] = (track.cells[step]+1) % 5;
-    }
-    refreshGrid();
-  }
+        function addSynth(type) {
+            const synth = createSynth(type);
+            activeSynths.push(synth);
+            // Modulate frequency randomly for interest
+            setInterval(() => {
+                synth.osc.frequency.value = type === 'lead' ? 440 + Math.random() * 100 - 50 : 220 + Math.random() * 50 - 25;
+            }, 1000);
+        }
 
-  function editVelocity(cell, track){
-    const step = Number(cell.dataset.step);
-    const start = track.vel[step] ?? 0.8;
-    const v = prompt(`Set ${track.name} intensity (0.1 – 1.0)`, String(start));
-    if(v===null) return;
-    const val = Math.max(0.1, Math.min(1.0, Number(v)));
-    track.vel[step] = val;
-    cell.classList.add('pulse'); setTimeout(()=>cell.classList.remove('pulse'),120);
-  }
+        function addRandomTameSound() {
+            // Tame Impala-like: dreamy, detuned synth with chorus effect
+            const time = audioCtx.currentTime;
+            const detune = Math.random() * 20 - 10;
+            const freq = 300 + Math.random() * 200;
+            const osc1 = audioCtx.createOscillator();
+            osc1.type = 'sawtooth';
+            osc1.frequency.value = freq;
+            osc1.detune.value = detune;
 
-  function refreshGrid(){
-    document.querySelectorAll('.cell').forEach(el=>{
-      const t = tracks[Number(el.dataset.track)];
-      const s = Number(el.dataset.step);
-      const val = t.cells[s];
-      el.classList.toggle('active', !!val);
-      // color intensity by velocity/note choice
-      const intensity = t.vel[s] ?? 0.8;
-      const base = {kick:'var(--kick)',snare:'var(--snare)',hat:'var(--hat)',clap:'var(--clap)',bass:'var(--bass)',pad:'var(--pad)'}[t.id];
-      el.style.boxShadow = el.classList.contains('active')
-        ? `inset 0 0 0 2px ${base}55, 0 0 12px ${base}30`
-        : 'none';
-      el.style.opacity = el.classList.contains('active') ? (0.55 + intensity*0.45) : 0.9;
-      // display note label for melodic
-      if(t.type==='note'){
-        const labels = ['–','R','♭3/3','5','8'];
-        el.textContent = labels[val] || '';
-      } else {
-        el.textContent = '';
-      }
-    });
-  }
+            const osc2 = audioCtx.createOscillator();
+            osc2.type = 'sawtooth';
+            osc2.frequency.value = freq;
+            osc2.detune.value = -detune;
 
-  function highlightColumn(step){
-    document.querySelectorAll('.cell').forEach(el=>{
-      el.classList.toggle('playing', Number(el.dataset.step)===step);
-    });
-  }
-  function clearHighlight(){
-    document.querySelectorAll('.cell').forEach(el=>el.classList.remove('playing'));
-  }
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(0.4, time);
+            gain.gain.exponentialRampToValueAtTime(0.01, time + 2 + Math.random() * 3);
 
-  // ---------- Presets / Random ----------
-  function applyPresetDom(){
-    clearAll();
-    // 4-on-the-floor kick
-    for(let i=0;i<STEPS;i+=4) tracks[0].cells[i]=1, tracks[0].vel[i]=0.95;
-    // snare on 2 & 4
-    [4,12].forEach(i=>{tracks[1].cells[i]=1; tracks[1].vel[i]=0.9;});
-    // hats offbeat + 16th add
-    for(let i=2;i<STEPS;i+=4) tracks[2].cells[i]=1, tracks[2].vel[i]=0.7;
-    [6,10,14].forEach(i=>{tracks[2].cells[i]=1; tracks[2].vel[i]=0.45;});
-    // clap layer on 2 & 4
-    [4,12].forEach(i=>{tracks[3].cells[i]=1; tracks[3].vel[i]=0.85;});
-    // bass: root + 5th pattern
-    [0,3,4,7,8,11,12,15].forEach(i=>tracks[4].cells[i]= (i%4===0?1:3));
-    // pad: long chords on bars
-    [0,4,8,12].forEach(i=>tracks[5].cells[i]=1);
-    bpm=124; document.getElementById('bpm').value=bpm; document.getElementById('bpmVal').textContent=`${bpm} BPM`;
-    swing=0.12; document.getElementById('swing').value=12; document.getElementById('swingVal').textContent='12%';
-    document.getElementById('lpCut').value=12000; document.getElementById('delaySend').value=0.2; document.getElementById('pump').value=0.7;
-    refreshGrid(); updateMaster();
-  }
+            const delay = audioCtx.createDelay(0.03);
+            const feedback = audioCtx.createGain();
+            feedback.gain.value = 0.3;
 
-  function applyPresetRufus(){
-    clearAll();
-    // kick pattern with breath
-    [0,4,8,12].forEach(i=>{tracks[0].cells[i]=1; tracks[0].vel[i]=0.9;});
-    [15].forEach(i=>{tracks[0].cells[i]=1; tracks[0].vel[i]=0.6;});
-    // snare/clap on 2 & 4, softer
-    [4,12].forEach(i=>{tracks[1].cells[i]=1; tracks[1].vel[i]=0.75; tracks[3].cells[i]=1; tracks[3].vel[i]=0.7;});
-    // hats: gentle 16ths
-    for(let i=0;i<STEPS;i++) if(i%2===0){tracks[2].cells[i]=1; tracks[2].vel[i]=0.35;}
-    // bass: melodic (root/♭3/5/8)
-    [0,2,4,6,8,10,12,14].forEach((i,k)=>tracks[4].cells[i] = [1,2,3,2,1,3,4,3][k]);
-    // pad: hold on bars
-    [0,8].forEach(i=>{tracks[5].cells[i]=1;});
-    bpm=116; document.getElementById('bpm').value=bpm; document.getElementById('bpmVal').textContent=`${bpm} BPM`;
-    swing=0.08; document.getElementById('swing').value=8; document.getElementById('swingVal').textContent='8%';
-    document.getElementById('lpCut').value=9000; document.getElementById('delaySend').value=0.35; document.getElementById('pump').value=0.45;
-    document.getElementById('scale').value='dorian'; document.getElementById('keyRoot').value='A';
-    refreshGrid(); updateMaster();
-  }
+            osc1.connect(gain);
+            osc2.connect(delay).connect(feedback).connect(gain);
+            feedback.connect(delay);
+            gain.connect(audioCtx.destination);
 
-  function clearAll(){
-    tracks.forEach(t=>{t.cells.fill(0); t.vel.fill( t.type==='drum'?0.85:1.0 );});
-    refreshGrid();
-  }
+            osc1.start(time);
+            osc2.start(time);
+            osc1.stop(time + 5);
+            osc2.stop(time + 5);
+        }
 
-  function randomize(){
-    clearAll();
-    for(let i=0;i<STEPS;i++){
-      // kick with 4-on-the-floor bias
-      if(i%4===0 || Math.random()<0.15) tracks[0].cells[i]=1;
-      // snare backbeats with some rolls
-      if(i===4 || i===12 || Math.random()<0.08) tracks[1].cells[i]=1;
-      // hats groovy
-      if(i%2===0 || Math.random()<0.25){ tracks[2].cells[i]=1; tracks[2].vel[i]=0.3 + Math.random()*0.5; }
-      // clap on 2 & 4
-      if(i===4 || i===12 || (Math.random()<0.07 && i%4!==0)) tracks[3].cells[i]=1;
-      // bass melody
-      if(Math.random()<0.45) tracks[4].cells[i] = 1 + Math.floor(Math.random()*4);
-      // pad chords on bars
-      if(i%4===0 && Math.random()<0.5) tracks[5].cells[i]=1;
-    }
-    refreshGrid();
-  }
+        function nextNote() {
+            currentNote = (currentNote + 1) % 16;
+        }
 
-  // ---------- Master / FX ----------
+        function scheduleNote(note, time) {
+            const pattern = drumPatterns[presetType];
+            if (!pattern) return;
 
-  function updateMaster(){
-    if(!audio.ctx) return;
-    audio.master.gain.value = Number(document.getElementById('masterVol').value);
-    audio.lp.frequency.value = Number(document.getElementById('lpCut').value);
-    audio.delayGain.gain.value = Number(document.getElementById('delaySend').value);
-  }
+            if (note % 4 === 0) playKick(time); // Kick on every beat
 
-  // ---------- Export / Import ----------
-  function copyJSON(){
-    const state = { bpm, swing, tracks: tracks.map(t=>({id:t.id, cells:[...t.cells], vel:[...t.vel]})), key: document.getElementById('keyRoot').value, scale: document.getElementById('scale').value };
-    navigator.clipboard.writeText(JSON.stringify(state)).then(()=> alert('Pattern copied!'));
-  }
-  function pasteJSON(){
-    const j = prompt('Paste pattern JSON here:'); if(!j) return;
-    try{
-      const s = JSON.parse(j);
-      bpm = s.bpm ?? bpm; document.getElementById('bpm').value=bpm; document.getElementById('bpmVal').textContent=`${bpm} BPM`;
-      swing = s.swing ?? swing; document.getElementById('swing').value = Math.round((swing*100)); document.getElementById('swingVal').textContent = `${Math.round(swing*100)}%`;
-      (s.tracks||[]).forEach(st=>{
-        const t = tracks.find(tt=>tt.id===st.id); if(!t) return;
-        t.cells = st.cells.slice(0,STEPS).concat(Array(STEPS).fill(0)).slice(0,STEPS);
-        t.vel   = st.vel.slice(0,STEPS).concat(Array(STEPS).fill(1)).slice(0,STEPS);
-      });
-      if(s.key) document.getElementById('keyRoot').value = s.key;
-      if(s.scale) document.getElementById('scale').value = s.scale;
-      refreshGrid(); updateMaster();
-    }catch(e){ alert('Invalid JSON'); }
-  }
+            if (pattern.snare.includes(note)) playSnare(time);
+            if (pattern.hihat.includes(note)) playHiHat(time);
+            if (pattern.openhihat.includes(note)) playHiHat(time, true);
 
-  // ---------- Wire UI ----------
-  buildGrid();
-  document.getElementById('startStop').addEventListener('click', ()=> isPlaying?stop():start());
-  document.getElementById('bpm').addEventListener('input', e=>{ bpm = Number(e.target.value); document.getElementById('bpmVal').textContent=`${bpm} BPM`; });
-  document.getElementById('swing').addEventListener('input', e=>{ swing = Number(e.target.value)/100; document.getElementById('swingVal').textContent=`${e.target.value}%`; });
-  document.getElementById('lpCut').addEventListener('input', updateMaster);
-  document.getElementById('delaySend').addEventListener('input', updateMaster);
-  document.getElementById('masterVol').addEventListener('input', updateMaster);
-  document.getElementById('pump').addEventListener('input', ()=>{ /* live-read inside Kick.trigger */ });
-  document.getElementById('clear').addEventListener('click', clearAll);
-  document.getElementById('randomize').addEventListener('click', randomize);
-  document.getElementById('preset').addEventListener('change', e=>{
-    if(e.target.value==='dom') applyPresetDom();
-    if(e.target.value==='rufus') applyPresetRufus();
-    e.target.value='';
-  });
-  document.getElementById('keyRoot').addEventListener('change', ()=>{});
-  document.getElementById('scale').addEventListener('change', ()=>{});
-  document.getElementById('copyJSON').addEventListener('click', copyJSON);
-  document.getElementById('pasteJSON').addEventListener('click', pasteJSON);
+            const bassPattern = bassPatterns[presetType];
+            if (bassPattern[note]) {
+                playBass(bassPattern[note], time);
+            }
+        }
 
-  // Recording
-  document.getElementById('recordBtn').addEventListener('click', ()=>{
-    initAudio();
-    if(!audio.mediaRec){ alert('Recording not supported in this browser. Try Chrome/Edge.'); return; }
-    if(audio.mediaRec.state==='recording'){
-      audio.mediaRec.stop();
-      document.getElementById('recordBtn').textContent = '⏺ Record';
-    }else{
-      document.getElementById('downloadLink').style.display='none';
-      audio.mediaRec.start();
-      document.getElementById('recordBtn').textContent = '⏹ Stop';
-    }
-  });
+        function scheduler() {
+            while (nextNoteTime < audioCtx.currentTime + scheduleAheadTime) {
+                scheduleNote(currentNote, nextNoteTime);
+                nextNote();
+                nextNoteTime += secondsPerBeat / 4; // 16th notes
+            }
+            if (isPlaying) {
+                requestAnimationFrame(scheduler);
+            }
+        }
 
-  // Helpful default
-  applyPresetDom();
-})();
-</script>
+        function startPreset(type) {
+            initAudio();
+            if (isPlaying) stopAll();
+            presetType = type;
+            drumPatterns.deep = {
+                snare: [4, 12],
+                hihat: [2, 6, 10, 14],
+                openhihat: [0, 8]
+            };
+            drumPatterns.tech = {
+                snare: [4, 12],
+                hihat: [1, 3, 5, 7, 9, 11, 13, 15],
+                openhihat: [0, 8]
+            };
+            bassPatterns.deep = [0, null, null, null, 98, null, null, null, 0, null, null, null, 98, null, null, null].map(n => n ? 98 : null); // Low E
+            bassPatterns.tech = [82, null, 82, null, 98, null, 98, null, 82, null, 82, null, 98, null, 98, null]; // More rhythmic
+
+            isPlaying = true;
+            currentNote = 0;
+            nextNoteTime = audioCtx.currentTime + 0.05;
+            scheduler();
+            document.querySelector(`button[onclick="startPreset('${type}')"]`).classList.add('active');
+        }
+
+        function stopAll() {
+            isPlaying = false;
+            activeSynths.forEach(synth => {
+                synth.osc.stop();
+            });
+            activeSynths = [];
+            document.querySelectorAll('button.active').forEach(btn => btn.classList.remove('active'));
+        }
+    </script>
 </body>
 </html>
