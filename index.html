@@ -1,112 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>House Beat Maker</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.39/Tone.js"></script>
-<style>
-  body { background: #111; color: #fff; font-family: sans-serif; text-align: center; margin: 0; padding: 20px;}
-  h1 { margin-bottom: 20px; }
-  button { margin: 10px; padding: 10px 20px; background: #222; border: 1px solid #fff; color: #fff; cursor: pointer; border-radius: 5px; transition: 0.2s; }
-  button:hover { background: #444; }
-  .track { display: flex; align-items: center; justify-content: center; margin: 10px 0; gap: 10px; }
-  input[type="range"] { width: 150px; }
-  .tracks, .presets { margin: 20px 0; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beat Forge: House Music Creator</title>
+    <style>
+        /* All CSS goes here to style the app */
+        body {
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+            font-family: 'Courier New', Courier, monospace;
+            /* ... more styling for a dark, professional look */
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            /* ... layout styling */
+        }
+        .controls { /* ... */ }
+        .grid { /* ... */ }
+        .grid-cell { /* ... */ }
+        /* ... styles for presets, sliders, etc. */
+    </style>
 </head>
 <body>
+    <div class="container">
+        <h1>Beat Forge</h1>
+        <div class="controls">
+            <button id="play-pause-btn">▶️</button>
+            <label for="tempo-slider">Tempo: <span id="tempo-value">120</span> BPM</label>
+            <input type="range" id="tempo-slider" min="60" max="180" value="120">
+        </div>
 
-<h1>House Beat Maker</h1>
+        <div class="presets">
+            <button class="preset-btn" data-preset="deep-house">Deep House Vibe</button>
+            <button class="preset-btn" data-preset="tech-house">Tech House Groove</button>
+        </div>
 
-<div class="presets">
-  <button onclick="loadPreset('Deep House')">Deep House</button>
-  <button onclick="loadPreset('Tech House')">Tech House</button>
-  <button onclick="loadPreset('Progressive')">Progressive</button>
-  <button onclick="randomizeFX()">Random FX</button>
-</div>
+        <div class="grid">
+            </div>
 
-<div class="tracks">
-  <div class="track">
-    Kick Volume: <input type="range" id="kickVol" min="0" max="1" step="0.01" value="0.8">
-  </div>
-  <div class="track">
-    Snare Volume: <input type="range" id="snareVol" min="0" max="1" step="0.01" value="0.7">
-  </div>
-  <div class="track">
-    Bass Volume: <input type="range" id="bassVol" min="0" max="1" step="0.01" value="0.6">
-  </div>
-</div>
+        <div class="sound-library">
+            <button class="add-sound-btn" data-sound="tame-impala-synth">Tame Impala Synth</button>
+            <button class="add-sound-btn" data-sound="reversed-fx">Reversed FX</button>
+        </div>
+    </div>
 
-<button onclick="startStop()">Play / Stop</button>
+    <script>
+        // All JavaScript goes here to power the app
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
-<script>
-let kick, snare, bass;
-let kickSeq, snareSeq, bassSeq;
-let isPlaying = false;
+        const sounds = {
+            'kick': 'path/to/kick.wav',
+            'snare': 'path/to/snare.wav',
+            'hi-hat': 'path/to/hi-hat.wav',
+            'deep-house-synth': 'path/to/deep-house-synth.wav',
+            'tame-impala-synth': 'path/to/tame-impala-synth.wav'
+        };
 
-function initSynths() {
-  kick = new Tone.MembraneSynth().toDestination();
-  snare = new Tone.NoiseSynth({ noise: { type: 'white' }, envelope: { attack: 0.001, decay: 0.2, sustain: 0 } }).toDestination();
-  bass = new Tone.MonoSynth({
-    oscillator: { type: 'sawtooth' },
-    envelope: { attack: 0.01, decay: 0.3, sustain: 0.6, release: 1 }
-  }).toDestination();
+        const sequences = {
+            'deep-house': [
+                // Pre-programmed beat data
+                [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0], // kick
+                [0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0]  // hi-hat
+                // ... more sounds
+            ],
+            'tech-house': [ /* ... */ ]
+        };
 
-  kickSeq = new Tone.Sequence(
-    (time, step) => { if(step) kick.triggerAttackRelease('C2','8n',time); },
-    [1,0,0,0,1,0,0,0],
-    '8n'
-  );
+        let currentTempo = 120;
+        let isPlaying = false;
+        let currentStep = 0;
+        let timer;
 
-  snareSeq = new Tone.Sequence(
-    (time, step) => { if(step) snare.triggerAttackRelease('16n',time); },
-    [0,0,1,0,0,0,1,0],
-    '8n'
-  );
+        // Functions to load sounds, play the beat, handle UI interactions
+        // This will all be a few hundred lines of JS code
+        // to manage the timing, grid, and audio playback.
 
-  bassSeq = new Tone.Sequence(
-    (time, note) => bass.triggerAttackRelease(note,'8n',time),
-    ["C2","C2","E2","G2","C2","C2","E2","G2"],
-    '8n'
-  );
-}
-
-function startStop() {
-  if (!isPlaying) {
-    if(Tone.context.state !== 'running') Tone.context.resume();
-    kickSeq.start(0);
-    snareSeq.start(0);
-    bassSeq.start(0);
-    Tone.Transport.start();
-    isPlaying = true;
-  } else {
-    Tone.Transport.stop();
-    isPlaying = false;
-  }
-}
-
-// Update volumes
-document.getElementById('kickVol').addEventListener('input', e => kick.volume.value = Tone.gainToDb(e.target.value));
-document.getElementById('snareVol').addEventListener('input', e => snare.volume.value = Tone.gainToDb(e.target.value));
-document.getElementById('bassVol').addEventListener('input', e => bass.volume.value = Tone.gainToDb(e.target.value));
-
-function loadPreset(preset) {
-  alert(`Preset loaded: ${preset}`);
-  // Can customize patterns per preset
-}
-
-function randomizeFX() {
-  // Apply random reverb or delay
-  const reverb = new Tone.Reverb(Math.random()*3 + 1).toDestination();
-  bass.connect(reverb);
-  snare.connect(reverb);
-  kick.connect(reverb);
-  alert('Random FX applied!');
-}
-
-initSynths();
-</script>
-
+        document.addEventListener('DOMContentLoaded', () => {
+            // Setup event listeners for buttons and sliders
+            // And initialize the beat grid based on a preset
+        });
+    </script>
 </body>
 </html>
