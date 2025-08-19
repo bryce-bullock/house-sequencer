@@ -10,8 +10,7 @@
       font-family: Arial, sans-serif;
       color: #ddd;
       text-align: center;
-      margin: 0;
-      padding: 30px;
+      margin: 0; padding: 30px;
     }
     h1 { font-size: 1.5em; color: #fff; margin-bottom: 20px; }
     #pageLabel { font-size: 0.9em; margin-bottom: 10px; color: #aaa; }
@@ -44,10 +43,7 @@
       margin-top: 25px; display: flex; justify-content: center;
       gap: 40px; flex-wrap: wrap;
     }
-    .control {
-      display: flex; flex-direction: column;
-      align-items: center; font-size: 0.8em;
-    }
+    .control { display: flex; flex-direction: column; align-items: center; font-size: 0.8em; }
     input[type=range] { width: 140px; accent-color: #00b894; }
   </style>
 </head>
@@ -63,6 +59,7 @@
       <option value="tech">Tech House</option>
       <option value="minimal">Minimal</option>
     </select>
+    <button id="randomize">🎲 Randomize</button>
   </div>
 
   <div class="controls">
@@ -80,13 +77,6 @@
     </div>
   </div>
 
-  <div style="margin-top:25px;">
-    <input type="text" id="patternName" placeholder="Pattern name" style="padding:6px;">
-    <button id="savePattern">💾 Save Pattern</button>
-    <select id="savedPatterns"></select>
-    <button id="loadPattern">📂 Load</button>
-  </div>
-
   <script>
     const pages = [
       { name: "Drums", instruments: ["Kick", "Snare", "HiHat"] },
@@ -97,20 +87,23 @@
     const pageLabel = document.getElementById("pageLabel");
     let cells = [];
 
+    // Build grid across ALL pages (fix for stop bug)
     function buildGrid() {
       grid.innerHTML = "";
       cells = [];
-      pages[currentPage].instruments.forEach((row, r) => {
-        for (let i = 0; i < 16; i++) {
-          const cell = document.createElement("div");
-          cell.classList.add("cell");
-          cell.dataset.row = r;
-          cell.dataset.step = i;
-          cell.dataset.page = currentPage;
-          cell.onclick = () => cell.classList.toggle("active");
-          grid.appendChild(cell);
-          cells.push(cell);
-        }
+      pages.forEach((page, pIndex) => {
+        page.instruments.forEach((row, r) => {
+          for (let i = 0; i < 16; i++) {
+            const cell = document.createElement("div");
+            cell.classList.add("cell");
+            cell.dataset.row = r;
+            cell.dataset.step = i;
+            cell.dataset.page = pIndex;
+            cell.onclick = () => cell.classList.toggle("active");
+            if (pIndex === currentPage) grid.appendChild(cell);
+            cells.push(cell);
+          }
+        });
       });
       pageLabel.textContent = `Page: ${pages[currentPage].name}`;
     }
@@ -132,12 +125,14 @@
     let stepIndex = 0;
     const loop = new Tone.Loop((time) => {
       cells.forEach(c => c.classList.remove("current"));
-      pages[currentPage].instruments.forEach((instName, r) => {
-        const cell = cells.find(c => c.dataset.page == currentPage && c.dataset.row == r && c.dataset.step == stepIndex);
-        if (cell && cell.classList.contains("active")) {
-          instruments[instName].triggerAttackRelease("C2", "8n", time);
-        }
-        if (cell) cell.classList.add("current");
+      pages.forEach((page, pIndex) => {
+        page.instruments.forEach((instName, r) => {
+          const cell = cells.find(c => c.dataset.page == pIndex && c.dataset.row == r && c.dataset.step == stepIndex);
+          if (cell && cell.classList.contains("active")) {
+            instruments[instName].triggerAttackRelease("C2", "8n", time);
+          }
+          if (cell && pIndex === currentPage) cell.classList.add("current"); // only highlight visible page
+        });
       });
       stepIndex = (stepIndex + 1) % 16;
     }, "16n");
@@ -163,6 +158,7 @@
       buildGrid();
     };
 
+    // Controls
     document.getElementById("tempo").addEventListener("input", e => Tone.Transport.bpm.value = +e.target.value);
     document.getElementById("filter").addEventListener("input", e => filter.frequency.value = +e.target.value);
     document.getElementById("swing").addEventListener("input", e => {
@@ -170,62 +166,36 @@
       Tone.Transport.swingSubdivision = "16n";
     });
 
-    // Presets (same as before, omitted for brevity)...
+    // ---- PRESETS ----
+    const presets = {
+      deep: (cells) => {
+        cells.forEach(c => c.classList.remove("active"));
+        cells.filter(c => c.dataset.page==0 && c.dataset.row==0 && c.dataset.step%4===0).forEach(c => c.classList.add("active")); // Kick
+        cells.filter(c => c.dataset.page==0 && c.dataset.row==1 && c.dataset.step===4).forEach(c => c.classList.add("active")); // Snare
+        cells.filter(c => c.dataset.page==0 && c.dataset.row==2 && c.dataset.step%2===0).forEach(c => c.classList.add("active")); // HiHat
+      },
+      tech: (cells) => {
+        cells.forEach(c => c.classList.remove("active"));
+        cells.filter(c => c.dataset.page==0 && c.dataset.row==0 && (c.dataset.step%4===0 || c.dataset.step===6)).forEach(c => c.classList.add("active"));
+        cells.filter(c => c.dataset.page==0 && c.dataset.row==1 && c.dataset.step===4).forEach(c => c.classList.add("active"));
+        cells.filter(c => c.dataset.page==1 && c.dataset.row==1 && c.dataset.step%4===2).forEach(c => c.classList.add("active"));
+      },
+      minimal: (cells) => {
+        cells.forEach(c => c.classList.remove("active"));
+        cells.filter(c => c.dataset.page==0 && c.dataset.row==0 && c.dataset.step%8===0).forEach(c => c.classList.add("active"));
+        cells.filter(c => c.dataset.page==0 && c.dataset.row==2 && c.dataset.step%4===2).forEach(c => c.classList.add("active"));
+      }
+    };
 
-    // ---- SAVE / LOAD ----
-    function getPatternData() {
-      return {
-        tempo: +document.getElementById("tempo").value,
-        filter: +document.getElementById("filter").value,
-        swing: +document.getElementById("swing").value,
-        steps: cells.map(c => ({ page: +c.dataset.page, row: +c.dataset.row, step: +c.dataset.step, active: c.classList.contains("active") }))
-      };
-    }
+    document.getElementById("preset").addEventListener("change", e => presets[e.target.value](cells));
 
-    function applyPatternData(data) {
-      document.getElementById("tempo").value = data.tempo;
-      Tone.Transport.bpm.value = data.tempo;
-      document.getElementById("filter").value = data.filter;
-      filter.frequency.value = data.filter;
-      document.getElementById("swing").value = data.swing;
-      Tone.Transport.swing = data.swing / 100;
+    // ---- RANDOMIZE ----
+    document.getElementById("randomize").onclick = () => {
       cells.forEach(c => c.classList.remove("active"));
-      data.steps.forEach(s => {
-        const cell = cells.find(c => c.dataset.page == s.page && c.dataset.row == s.row && c.dataset.step == s.step);
-        if (cell && s.active) cell.classList.add("active");
+      cells.forEach(c => {
+        if (Math.random() < 0.15) c.classList.add("active"); // ~15% chance per step
       });
-    }
-
-    function refreshSavedPatterns() {
-      const saved = JSON.parse(localStorage.getItem("patterns") || "{}");
-      const select = document.getElementById("savedPatterns");
-      select.innerHTML = "";
-      Object.keys(saved).forEach(name => {
-        const opt = document.createElement("option");
-        opt.value = name;
-        opt.textContent = name;
-        select.appendChild(opt);
-      });
-    }
-
-    document.getElementById("savePattern").onclick = () => {
-      const name = document.getElementById("patternName").value.trim();
-      if (!name) return alert("Enter a pattern name!");
-      const saved = JSON.parse(localStorage.getItem("patterns") || "{}");
-      saved[name] = getPatternData();
-      localStorage.setItem("patterns", JSON.stringify(saved));
-      refreshSavedPatterns();
-      document.getElementById("patternName").value = "";
     };
-
-    document.getElementById("loadPattern").onclick = () => {
-      const select = document.getElementById("savedPatterns");
-      if (!select.value) return alert("No pattern selected");
-      const saved = JSON.parse(localStorage.getItem("patterns") || "{}");
-      applyPatternData(saved[select.value]);
-    };
-
-    refreshSavedPatterns();
   </script>
 </body>
 </html>
