@@ -5,114 +5,162 @@
   <script src="https://cdn.jsdelivr.net/npm/tone@14.8.39/build/Tone.js"></script>
   <style>
     body {
-      font-family: sans-serif;
-      background: #0a0a0a;
+      font-family: 'Segoe UI', sans-serif;
+      background: radial-gradient(circle at top, #111 0%, #000 100%);
       color: white;
       text-align: center;
       margin: 0;
-      padding: 0;
+      padding: 20px;
     }
-    h1 { margin: 15px 0; font-size: 6vw; }
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      color: #0ff;
+      text-shadow: 0 0 10px #0ff;
+    }
+    #pageLabel {
+      font-size: 1.2em;
+      margin-bottom: 15px;
+      color: #0ff;
+      text-shadow: 0 0 8px #0ff;
+    }
     #grid {
       display: grid;
-      grid-template-columns: repeat(16, 1fr);
-      gap: 0.5vw;
-      margin: 10px auto;
-      width: 95vw;
-      max-width: 900px;
-    }
-    .row-label {
-      grid-column: 1 / span 16;
-      margin-top: 1em;
-      text-align: left;
-      font-size: 3.5vw;
-      color: #aaa;
+      grid-template-columns: repeat(16, 40px);
+      gap: 6px;
+      margin: 20px auto;
+      width: max-content;
+      background: #111;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
     }
     .cell {
-      aspect-ratio: 1 / 1; /* keeps cells square */
-      background: #333;
+      width: 40px;
+      height: 40px;
+      background: #222;
+      border-radius: 8px;
       cursor: pointer;
-      border-radius: 6px;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .cell:hover { transform: scale(1.05); }
+    .cell.active {
+      background: #0ff;
+      box-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
+    }
+    .cell.current {
+      border: 2px solid #f0f;
+      box-shadow: 0 0 15px #f0f;
+    }
+    button {
+      margin: 10px;
+      padding: 12px 24px;
+      font-size: 1.1em;
+      border: none;
+      border-radius: 8px;
+      background: #0ff;
+      color: black;
+      cursor: pointer;
+      font-weight: bold;
       transition: background 0.2s;
     }
-    .cell.active { background: #0f0; }
-    button {
-      margin: 15px;
-      padding: 10px 20px;
-      font-size: 4vw;
-      max-width: 200px;
-      border: none;
-      border-radius: 6px;
-      background: #222;
-      color: white;
-      cursor: pointer;
+    button:hover { background: #0cc; }
+    .controls {
+      margin-top: 25px;
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
     }
-    button:active { background: #444; }
-    @media (min-width: 768px) {
-      h1 { font-size: 2em; }
-      .row-label { font-size: 1em; }
-      button { font-size: 1em; }
+    .control {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    input[type=range] { width: 150px; }
+    label { margin-bottom: 6px; font-size: 0.9em; color: #aaa; }
+    @media (max-width: 768px) {
+      #grid { grid-template-columns: repeat(16, 20px); }
+      .cell { width: 20px; height: 20px; }
     }
   </style>
 </head>
 <body>
   <h1>House Beat Maker</h1>
+  <div id="pageLabel">Page: Drums</div>
   <div id="grid"></div>
-  <button id="play">Play / Stop</button>
+  <div>
+    <button id="play">▶ Play / Stop</button>
+    <button id="pageToggle">Switch Page</button>
+  </div>
+
+  <div class="controls">
+    <div class="control">
+      <label for="tempo">Tempo (BPM)</label>
+      <input type="range" id="tempo" min="60" max="180" value="120">
+    </div>
+    <div class="control">
+      <label for="filter">Filter Cutoff</label>
+      <input type="range" id="filter" min="200" max="8000" value="5000">
+    </div>
+  </div>
 
   <script>
-    const instruments = ["Kick", "Snare", "HiHat", "Bass"];
+    const pages = [
+      { name: "Drums", instruments: ["Kick", "Snare", "HiHat"] },
+      { name: "Percussion", instruments: ["Bass", "Clap", "Shaker"] }
+    ];
+    let currentPage = 0;
+
     const grid = document.getElementById("grid");
-    const cells = [];
+    const pageLabel = document.getElementById("pageLabel");
+    let cells = [];
 
-    // build sequencer grid
-    instruments.forEach((inst, r) => {
-      const label = document.createElement("div");
-      label.textContent = inst;
-      label.classList.add("row-label");
-      grid.appendChild(label);
+    function buildGrid() {
+      grid.innerHTML = "";
+      cells = [];
+      pages[currentPage].instruments.forEach((row, r) => {
+        for (let i = 0; i < 16; i++) {
+          const cell = document.createElement("div");
+          cell.classList.add("cell");
+          cell.dataset.row = r;
+          cell.dataset.step = i;
+          cell.onclick = () => { cell.classList.toggle("active"); };
+          grid.appendChild(cell);
+          cells.push(cell);
+        }
+      });
+      pageLabel.textContent = `Page: ${pages[currentPage].name}`;
+    }
 
-      for (let i = 0; i < 16; i++) {
-        const cell = document.createElement("div");
-        cell.classList.add("cell");
-        cell.dataset.row = r;
-        cell.dataset.step = i;
-        cell.addEventListener("click", () => cell.classList.toggle("active"));
-        cell.addEventListener("touchstart", (e) => {
-          e.preventDefault();
-          cell.classList.toggle("active");
-        });
-        grid.appendChild(cell);
-        cells.push(cell);
-      }
-    });
+    buildGrid();
 
-    // drum samples
-    const playerKick = new Tone.Player("https://cdn.jsdelivr.net/gh/Tonejs/Tone.js/examples/audio/505/kick.mp3").toDestination();
-    const playerSnare = new Tone.Player("https://cdn.jsdelivr.net/gh/Tonejs/Tone.js/examples/audio/505/snare.mp3").toDestination();
-    const playerHat = new Tone.Player("https://cdn.jsdelivr.net/gh/Tonejs/Tone.js/examples/audio/505/hh.mp3").toDestination();
+    // instruments
+    const instruments = {
+      "Kick": new Tone.MembraneSynth(),
+      "Snare": new Tone.NoiseSynth({ envelope: { attack: 0.001, decay: 0.2, sustain: 0 } }),
+      "HiHat": new Tone.MetalSynth({ envelope: { attack: 0.001, decay: 0.1, release: 0.1 } }),
+      "Bass": new Tone.MonoSynth({ oscillator: { type: "sawtooth" }, envelope: { attack: 0.01, decay: 0.2, sustain: 0.2, release: 0.6 } }),
+      "Clap": new Tone.NoiseSynth({ envelope: { attack: 0.001, decay: 0.2 }, volume: -5 }),
+      "Shaker": new Tone.MetalSynth({ envelope: { attack: 0.001, decay: 0.05, release: 0.05 }, volume: -8 })
+    };
 
-    // bass synth with FX
-    const reverb = new Tone.Reverb({ decay: 3, wet: 0.3 }).toDestination();
-    const delay = new Tone.FeedbackDelay("8n", 0.3).connect(reverb);
-
-    const bass = new Tone.MonoSynth({
-      oscillator: { type: "sawtooth" },
-      envelope: { attack: 0.01, decay: 0.2, sustain: 0.2, release: 0.6 },
-      filterEnvelope: { attack: 0.01, decay: 0.1, sustain: 0.2, release: 0.6, baseFrequency: 100, octaves: 2.6 }
-    }).connect(delay);
+    const filter = new Tone.Filter(5000, "lowpass").toDestination();
+    Object.values(instruments).forEach(inst => inst.connect(filter));
 
     let stepIndex = 0;
     const loop = new Tone.Loop((time) => {
-      for (let r = 0; r < instruments.length; r++) {
+      // clear previous step indicator
+      cells.forEach(c => c.classList.remove("current"));
+
+      pages[currentPage].instruments.forEach((instName, r) => {
         const cell = cells[r * 16 + stepIndex];
         if (cell.classList.contains("active")) {
-          if (r === 0) playerKick.start(time);
-          if (r === 1) playerSnare.start(time);
-          if (r === 2) playerHat.start(time);
-          if (r === 3) bass.triggerAttackRelease("C2", "8n", time);
+          instruments[instName].triggerAttackRelease("C2", "8n", time);
         }
-      }
+        cell.classList.add("current"); // highlight current step
+      });
+
       stepIndex = (stepIndex + 1) % 16;
     }, "16n");
 
@@ -127,9 +175,23 @@
         Tone.Transport.stop();
         loop.stop();
         stepIndex = 0;
+        cells.forEach(c => c.classList.remove("current"));
         playing = false;
       }
     };
+
+    document.getElementById("pageToggle").onclick = () => {
+      currentPage = (currentPage + 1) % pages.length;
+      buildGrid();
+    };
+
+    document.getElementById("tempo").addEventListener("input", (e) => {
+      Tone.Transport.bpm.value = +e.target.value;
+    });
+
+    document.getElementById("filter").addEventListener("input", (e) => {
+      filter.frequency.value = +e.target.value;
+    });
   </script>
 </body>
 </html>
