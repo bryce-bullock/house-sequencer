@@ -3,142 +3,173 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pro House Music Web App</title>
+<title>Pro House Music Soundboard</title>
 <style>
-    body {
-        margin: 0;
-        font-family: 'Arial', sans-serif;
-        background: #121212;
-        color: #fff;
-    }
-    h1 {
-        text-align: center;
-        color: #0ff;
-        margin: 10px 0;
-        font-family: 'Orbitron', sans-serif;
-    }
-    .container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 10px;
-    }
-    .panel {
-        background: #1e1e1e;
-        border-radius: 8px;
-        box-shadow: 0 0 15px #0ff;
-        padding: 15px;
-        margin: 10px;
-        width: 90%;
-        max-width: 800px;
-    }
-    .buttons {
-        display: flex;
-        justify-content: space-around;
-        margin-top: 10px;
-    }
-    button {
-        background: #0ff;
-        border: none;
-        border-radius: 5px;
-        padding: 10px 20px;
-        font-weight: bold;
-        cursor: pointer;
-        color: #121212;
-        font-size: 16px;
-        transition: all 0.2s ease;
-    }
-    button:hover {
-        background: #0aa;
-    }
-    .keys {
-        display: flex;
-        justify-content: center;
-        margin-top: 15px;
-    }
-    .key {
-        width: 40px;
-        height: 120px;
-        margin: 2px;
-        background: #fff;
-        border-radius: 4px;
-        cursor: pointer;
-        display: flex;
-        align-items: flex-end;
-        justify-content: center;
-        font-size: 12px;
-        color: #000;
-        user-select: none;
-    }
-    .key.black {
-        background: #000;
-        color: #fff;
-        width: 30px;
-        height: 80px;
-        margin-left: -15px;
-        margin-right: -15px;
-        z-index: 1;
-        position: relative;
-    }
+body {
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+    background: #121212;
+    color: #fff;
+}
+h1 {
+    text-align: center;
+    color: #0ff;
+    margin: 10px 0;
+    font-family: 'Orbitron', sans-serif;
+}
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+}
+.panel {
+    background: #1e1e1e;
+    border-radius: 8px;
+    box-shadow: 0 0 15px #0ff;
+    padding: 15px;
+    margin: 10px;
+    width: 95%;
+    max-width: 900px;
+}
+.buttons, .instrument-controls {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 10px;
+}
+button {
+    background: #0ff;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 16px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #121212;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+button:hover { background: #0aa; }
+.keys {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+.key {
+    width: 40px;
+    height: 120px;
+    margin: 2px;
+    background: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    font-size: 12px;
+    color: #000;
+    user-select: none;
+}
+.key.black {
+    background: #000;
+    color: #fff;
+    width: 30px;
+    height: 80px;
+    margin-left: -15px;
+    margin-right: -15px;
+    z-index: 1;
+    position: relative;
+}
+label { margin-right:5px; }
+input[type=range] { width:120px; }
 </style>
 </head>
 <body>
-<h1>Pro House Music Web App</h1>
+<h1>Pro House Music Soundboard</h1>
 <div class="container">
-    <div class="panel">
-        <h2>Presets</h2>
-        <div class="buttons">
-            <button onclick="loadPreset('deep')">Deep House</button>
-            <button onclick="loadPreset('tech')">Tech House</button>
-            <button onclick="loadPreset('chill')">Chill House</button>
-        </div>
-    </div>
 
-    <div class="panel">
-        <h2>Play Drums</h2>
-        <div class="buttons">
-            <button onclick="playDrum('kick')">Kick</button>
-            <button onclick="playDrum('snare')">Snare</button>
-            <button onclick="playDrum('hihat')">Hi-Hat</button>
-        </div>
-    </div>
+<!-- Presets Panel -->
+<div class="panel">
+<h2>Presets</h2>
+<div class="buttons">
+    <button onclick="loadPreset('deep')">Deep House</button>
+    <button onclick="loadPreset('tech')">Tech House</button>
+    <button onclick="loadPreset('chill')">Chill House</button>
+</div>
+</div>
 
-    <div class="panel">
-        <h2>Piano / Synth Keys</h2>
-        <div class="keys" id="pianoKeys"></div>
-    </div>
+<!-- Drums Panel -->
+<div class="panel" id="drumsPanel">
+<h2>Drums</h2>
+<div class="buttons">
+    <button onclick="playDrum('kick')">Kick</button>
+    <button onclick="playDrum('snare')">Snare</button>
+    <button onclick="playDrum('hihat')">Hi-Hat</button>
+</div>
+<div class="instrument-controls">
+    <label>Loop<input type="checkbox" id="drumLoop"></label>
+    <label>Pitch<input type="range" id="drumPitch" min="0.5" max="2" value="1" step="0.01"></label>
+</div>
+</div>
+
+<!-- Piano/Synth Panel -->
+<div class="panel" id="pianoPanel">
+<h2>Piano / Synth</h2>
+<div class="keys" id="pianoKeys"></div>
+<div class="instrument-controls">
+    <label>Loop<input type="checkbox" id="pianoLoop"></label>
+    <label>Pitch<input type="range" id="pianoPitch" min="0.5" max="2" value="1" step="0.01"></label>
+</div>
+</div>
+
+<!-- Trumpet / Brass Panel -->
+<div class="panel" id="trumpetPanel">
+<h2>Trumpet / Brass</h2>
+<div class="buttons">
+    <button onclick="playTrumpet('C')">C</button>
+    <button onclick="playTrumpet('E')">E</button>
+    <button onclick="playTrumpet('G')">G</button>
+</div>
+<div class="instrument-controls">
+    <label>Loop<input type="checkbox" id="trumpetLoop"></label>
+    <label>Pitch<input type="range" id="trumpetPitch" min="0.5" max="2" value="1" step="0.01"></label>
+</div>
+</div>
+
+<!-- FX Panel -->
+<div class="panel" id="fxPanel">
+<h2>FX</h2>
+<div class="buttons">
+    <button onclick="playFX('sweep')">Sweep</button>
+    <button onclick="playFX('riser')">Riser</button>
+    <button onclick="playFX('whiteNoise')">White Noise</button>
+</div>
+</div>
+
 </div>
 
 <script>
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-// Drum sounds
+// ---------- DRUMS ----------
 function playDrum(type) {
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
+    let pitch = document.getElementById('drumPitch').value;
     gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
-
     osc.connect(gain).connect(audioCtx.destination);
 
-    if(type === 'kick') {
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(100, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
-    } else if(type === 'snare') {
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(200, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
-    } else if(type === 'hihat') {
-        osc.type = 'square';
-        osc.frequency.setValueAtTime(8000, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
-    }
+    if(type==='kick'){ osc.type='sine'; osc.frequency.setValueAtTime(100*pitch, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime+0.5); }
+    else if(type==='snare'){ osc.type='triangle'; osc.frequency.setValueAtTime(200*pitch, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime+0.2);}
+    else if(type==='hihat'){ osc.type='square'; osc.frequency.setValueAtTime(8000*pitch, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime+0.1);}
 
     osc.start();
-    osc.stop(audioCtx.currentTime + 0.5);
+    osc.stop(audioCtx.currentTime+0.5);
+
+    if(document.getElementById('drumLoop').checked){
+        setTimeout(()=>playDrum(type), 600);
+    }
 }
 
-// Piano keys setup
+// ---------- PIANO KEYS ----------
 const notes = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B','C2'];
 const pianoContainer = document.getElementById('pianoKeys');
 
@@ -147,35 +178,81 @@ notes.forEach(note => {
     key.classList.add('key');
     if(note.includes('#')) key.classList.add('black');
     key.textContent = note;
-    key.addEventListener('click', () => playNote(note));
+    key.addEventListener('click', ()=>playNote(note));
     pianoContainer.appendChild(key);
 });
 
-function playNote(note) {
+function playNote(note){
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
     osc.connect(gain).connect(audioCtx.destination);
 
-    const noteFreq = {
-        'C':261.63,'C#':277.18,'D':293.66,'D#':311.13,'E':329.63,
-        'F':349.23,'F#':369.99,'G':392.00,'G#':415.30,'A':440.00,
-        'A#':466.16,'B':493.88,'C2':523.25
-    };
-    osc.frequency.setValueAtTime(noteFreq[note], audioCtx.currentTime);
-    osc.type = 'sawtooth';
+    let pitch = document.getElementById('pianoPitch').value;
+
+    const noteFreq = {'C':261.63,'C#':277.18,'D':293.66,'D#':311.13,'E':329.63,'F':349.23,'F#':369.99,'G':392.00,'G#':415.30,'A':440.00,'A#':466.16,'B':493.88,'C2':523.25};
+    osc.frequency.setValueAtTime(noteFreq[note]*pitch, audioCtx.currentTime);
+    osc.type='sawtooth';
     osc.start();
-    osc.stop(audioCtx.currentTime + 1);
+    osc.stop(audioCtx.currentTime+1);
+
+    if(document.getElementById('pianoLoop').checked){
+        setTimeout(()=>playNote(note), 800);
+    }
 }
 
-// Presets
-function loadPreset(style) {
-    if(style==='deep') {
+// ---------- TRUMPET / BRASS ----------
+function playTrumpet(note){
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+    let pitch = document.getElementById('trumpetPitch').value;
+    osc.connect(gain).connect(audioCtx.destination);
+
+    const trumpetFreq = {'C':261.63,'E':329.63,'G':392.00};
+    osc.frequency.setValueAtTime(trumpetFreq[note]*pitch, audioCtx.currentTime);
+    osc.type='triangle';
+    osc.start();
+    osc.stop(audioCtx.currentTime+1);
+
+    if(document.getElementById('trumpetLoop').checked){
+        setTimeout(()=>playTrumpet(note), 1000);
+    }
+}
+
+// ---------- FX ----------
+function playFX(type){
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain).connect(audioCtx.destination);
+
+    if(type==='sweep'){ osc.frequency.setValueAtTime(200, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(2000, audioCtx.currentTime+1); gain.gain.setValueAtTime(0.3, audioCtx.currentTime);}
+    if(type==='riser'){ osc.frequency.setValueAtTime(100, audioCtx.currentTime); osc.frequency.linearRampToValueAtTime(2000, audioCtx.currentTime+2); gain.gain.setValueAtTime(0.25, audioCtx.currentTime);}
+    if(type==='whiteNoise'){
+        const bufferSize = audioCtx.sampleRate; 
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for(let i=0;i<bufferSize;i++){data[i]=Math.random()*2-1;}
+        const noise = audioCtx.createBufferSource();
+        noise.buffer = buffer;
+        noise.connect(audioCtx.destination);
+        noise.start();
+        return;
+    }
+    osc.start();
+    osc.stop(audioCtx.currentTime+1);
+}
+
+// ---------- PRESETS ----------
+function loadPreset(style){
+    if(style==='deep'){
         playDrum('kick'); setTimeout(()=>playDrum('hihat'), 300);
-    } else if(style==='tech') {
+        playNote('C'); setTimeout(()=>playNote('E'),300);
+    } else if(style==='tech'){
         playDrum('kick'); setTimeout(()=>playDrum('snare'), 200);
-    } else if(style==='chill') {
-        playNote('C'); setTimeout(()=>playNote('E'), 300);
+    } else if(style==='chill'){
+        playNote('C'); setTimeout(()=>playNote('E'), 400);
+        playTrumpet('C'); setTimeout(()=>playTrumpet('G'), 600);
     }
 }
 </script>
