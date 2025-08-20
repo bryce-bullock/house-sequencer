@@ -159,24 +159,19 @@ function audioBufferToWav(buffer){
   function setUint32(data){ view.setUint32(pos,data,true); pos+=4; }
 }
 
-// Simple pads for drums/synths
+// Pads with samples
 const padPanel=document.getElementById('padPanel');
-['Kick','Snare','HiHat','Clap','Piano','Trumpet','Synth'].forEach(name=>{
+const samples=['Kick','Snare','HiHat','Clap','Piano','Trumpet','Synth'];
+const sampleFreq={Kick:100,Snare:200,HiHat:400,Clap:300,Piano:261.63,Trumpet:329.63,Synth:440};
+samples.forEach(name=>{
   const pad=document.createElement('div'); pad.className='pad'; pad.textContent=name;
   pad.onclick=()=>{ playSample(name); };
   padPanel.appendChild(pad);
 });
 function playSample(name){
   const osc=ctx.createOscillator(); const gain=ctx.createGain(); gain.gain.value=0.3;
-  switch(name){
-    case 'Kick': osc.type='sine'; osc.frequency.value=100; break;
-    case 'Snare': osc.type='square'; osc.frequency.value=200; break;
-    case 'HiHat': osc.type='triangle'; osc.frequency.value=400; break;
-    case 'Clap': osc.type='square'; osc.frequency.value=300; break;
-    case 'Piano': osc.type='sine'; osc.frequency.value=261.63; break;
-    case 'Trumpet': osc.type='triangle'; osc.frequency.value=329.63; break;
-    case 'Synth': osc.type='sawtooth'; osc.frequency.value=440; break;
-  }
+  osc.type=name==='Synth'?'sawtooth':name==='Trumpet'?'triangle':name==='Piano'?'sine':'square';
+  osc.frequency.value=sampleFreq[name]||440;
   osc.connect(gain); gain.connect(masterGain); osc.start(); osc.stop(ctx.currentTime+0.2);
 }
 
