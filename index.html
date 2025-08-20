@@ -1,367 +1,697 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Haus Deck Pro v1.2</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>House Deck — Mini DJ Playground</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
 <style>
-  /* =======================
-     GENERAL STYLES
-  ======================= */
-  html, body {margin:0; padding:0; background:#0c0c0c; font-family: 'Arial', sans-serif; color:#eee;}
-  * {box-sizing:border-box;}
-  h1 {text-align:center; margin:10px 0; color:#ccc;}
-  
-  /* =======================
-     HEADER
-  ======================= */
-  #header {padding:10px; text-align:center; background:#1a1a1a; border-bottom:1px solid #333;}
-  
-  /* =======================
-     SEQUENCER GRID
-  ======================= */
-  .grid {display:grid; gap:2px; margin:10px auto; max-width:960px;}
-  .track-row {display:grid; grid-template-columns: repeat(16, 1fr); margin:4px 0;}
-  .step {width:100%; padding-top:100%; position:relative; cursor:pointer; border-radius:3px; background:#222; transition:0.1s;}
-  .step.active {background:#aaa;}
-  .step:after {content:""; display:block; padding-bottom:100%;}
-  
-  /* =======================
-     MIXER
-  ======================= */
-  .mixer {display:flex; justify-content:center; margin:10px auto; gap:10px; max-width:960px;}
-  .channel {background:#1a1a1a; padding:10px; border-radius:5px; width:120px; display:flex; flex-direction:column; align-items:center;}
-  .fader {writing-mode: bt-lr; -webkit-appearance: slider-vertical; width:8px; height:80px; margin:5px 0; accent-color:#ccc;}
-  .pan {width:80%; margin:5px 0;}
-  
-  /* =======================
-     CONTROLS
-  ======================= */
-  .controls {display:flex; justify-content:center; gap:10px; margin:10px;}
-  button {padding:8px 16px; border:none; border-radius:5px; background:#333; color:#eee; cursor:pointer; transition:0.2s;}
-  button:hover {background:#555;}
-  
-  select {padding:5px; border-radius:3px; border:none; background:#222; color:#eee;}
-  
-  /* =======================
-     PER-STEP VELOCITY SLIDER
-  ======================= */
-  .velocity-slider {width:100%; margin-top:2px;}
-  
-  /* =======================
-     VISUALIZER
-  ======================= */
-  canvas {display:block; margin:20px auto; background:#000; border:1px solid #333;}
+  :root{
+    --bg:#0b0b0c;
+    --panel:#0f1315;
+    --muted:#9aa4ae;
+    --accent:#ff3366;
+    --glass: rgba(255,255,255,0.03);
+    --glow: 0 6px 20px rgba(255,51,102,0.06);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    height:100vh;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;
+    background: linear-gradient(180deg,#050505 0%, #0a0a0b 100%);
+    color:#e6eef7;
+    -webkit-font-smoothing:antialiased;
+  }
+  .container{
+    width:1100px;
+    margin:28px;
+    border-radius:12px;
+    padding:18px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    box-shadow: 0 10px 40px rgba(2,6,12,0.8);
+    border:1px solid rgba(255,255,255,0.03);
+  }
+  header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .logo{
+    width:48px;height:48px;border-radius:8px;
+    background:linear-gradient(135deg,#111 0%, #1b1e20 100%);
+    display:flex;align-items:center;justify-content:center;
+    border:1px solid rgba(255,255,255,0.03);
+  }
+  .logo span{font-weight:800; color:var(--accent); font-size:18px; letter-spacing:0.5px}
+  h1{font-size:18px;margin:0;font-weight:600}
+  p.lead{margin:0;color:var(--muted);font-size:13px}
+  .controls{
+    display:flex;
+    gap:8px;
+    align-items:center;
+  }
+  .btn{
+    background:var(--panel);
+    border:1px solid rgba(255,255,255,0.03);
+    color:#e9f2ff;
+    padding:10px 14px;border-radius:8px;font-weight:600;cursor:pointer;
+    box-shadow: var(--glow);
+    transition:all .12s ease;
+  }
+  .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04); color:var(--muted)}
+  .btn.play{background:linear-gradient(90deg,#ff3366,#ff6a6a)}
+  .layout{
+    display:flex;
+    gap:16px;
+    margin-top:16px;
+  }
+  /* left: sequencer, right: mixer/visual */
+  .left{
+    flex:1.6;
+    background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
+    border-radius:10px;padding:14px;border:1px solid rgba(255,255,255,0.02);
+  }
+  .right{
+    flex:.9;
+    background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
+    border-radius:10px;padding:14px;border:1px solid rgba(255,255,255,0.02);
+    display:flex;flex-direction:column;gap:12px;
+  }
+  .tracks{display:flex;flex-direction:column;gap:12px}
+  .track{
+    display:flex;gap:12px;align-items:center;
+  }
+  .track .meta{width:120px; text-align:left}
+  .track .meta .name{font-weight:700;font-size:13px}
+  .grid{
+    display:grid;
+    grid-template-columns: repeat(16, 1fr);
+    gap:6px;
+    flex:1;
+  }
+  .step{
+    height:44px;border-radius:6px;background:var(--glass);
+    display:flex;align-items:center;justify-content:center;color:var(--muted);
+    cursor:pointer;border:1px solid rgba(255,255,255,0.02);
+    transition:transform .06s ease, background .08s ease;
+    font-weight:700;font-size:12px;
+  }
+  .step.on{background:linear-gradient(90deg,#25282b,#1b1c1e); color:#fff; box-shadow:0 6px 18px rgba(0,0,0,0.6) inset}
+  .step.playing{outline:2px solid rgba(255,51,102,0.12); transform:translateY(-4px)}
+  .small{
+    font-size:12px;color:var(--muted)
+  }
+
+  .mixer{
+    display:flex;flex-direction:column;gap:12px;
+  }
+  .meter{
+    height:100px;border-radius:8px;background:#060607;border:1px solid rgba(255,255,255,0.02);display:flex;align-items:end;padding:8px;
+  }
+  .meter > div{height:20%;background:linear-gradient(180deg,#ff3366,#ffaa99);width:100%}
+  .knob-row{display:flex;gap:8px;align-items:center}
+  .range{width:100%}
+  .preset-row{display:flex;gap:8px;align-items:center}
+  .subtle{font-size:12px;color:var(--muted)}
+  footer{margin-top:12px;color:var(--muted);font-size:12px;text-align:center}
+  .credits{display:flex;gap:8px;align-items:center}
+  .brand-mini{background:linear-gradient(90deg,#111,#18191b); padding:6px 8px;border-radius:6px}
+  /* responsive smaller */
+  @media (max-width:1200px){
+    .container{width:95%}
+    .brand p.lead{display:none}
+  }
 </style>
 </head>
 <body>
-<div id="header"><h1>Haus Deck Pro v1.2</h1></div>
+  <div class="container" role="application" aria-label="House Deck sequencing and synth playground">
+    <header>
+      <div class="brand">
+        <div class="logo"><span>HD</span></div>
+        <div>
+          <h1>House Deck</h1>
+          <p class="lead">Deep / Tech House instant presets · pads · sidechain · reverb</p>
+        </div>
+      </div>
 
-<!-- =======================
-     GENRE & PRESET CONTROLS
-======================= -->
-<div class="controls">
-  <select id="genreSelect">
-    <option value="deep">Deep House</option>
-    <option value="tech">Tech House</option>
-    <option value="chill">Chill House</option>
-    <option value="lofi">Lo-Fi House</option>
-    <option value="progressive">Progressive Starter</option>
-  </select>
-  <button id="playStop">Play / Stop</button>
-  <button id="randomize">Randomize Pattern</button>
-  <button id="recordBtn">Record WAV</button>
-</div>
+      <div class="controls">
+        <button class="btn play" id="startBtn">Start Audio</button>
+        <button class="btn" id="playStopBtn">Play</button>
+        <div style="width:12px"></div>
+        <div class="preset-row">
+          <span class="subtle">Presets</span>
+          <button class="btn ghost" id="presetDeep">Deep House</button>
+          <button class="btn ghost" id="presetTech">Tech House</button>
+        </div>
+      </div>
+    </header>
 
-<!-- =======================
-     SEQUENCER GRID
-======================= -->
-<div id="sequencer" class="grid"></div>
+    <div class="layout">
+      <div class="left" aria-hidden="false">
+        <div class="tracks" id="tracks">
+          <!-- Tracks inserted by JS -->
+        </div>
 
-<!-- =======================
-     MIXER
-======================= -->
-<div class="mixer" id="mixer"></div>
+        <div style="margin-top:14px;display:flex;gap:8px;align-items:center">
+          <button class="btn" id="addSynth">Add TamePad</button>
+          <button class="btn" id="rnd">Randomize</button>
+          <div style="flex:1"></div>
+          <span class="small">BPM</span>
+          <input type="range" id="bpm" min="80" max="130" value="122" style="width:180px;margin-left:8px">
+          <span id="bpmVal" style="width:44px;text-align:right;font-weight:700">122</span>
+        </div>
+      </div>
 
-<!-- =======================
-     VISUALIZER
-======================= -->
-<canvas id="visualizer" width="960" height="150"></canvas>
+      <aside class="right">
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <div class="small">Master</div>
+            <div class="small" id="clock">0:00</div>
+          </div>
+          <div class="meter" id="vuMeter"><div style="height:20%"></div></div>
+        </div>
+
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <div class="small">Reverb</div>
+            <div class="small" id="reverbVal">0.32</div>
+          </div>
+          <input class="range" type="range" id="reverb" min="0" max="1" step="0.01" value="0.32">
+        </div>
+
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <div class="small">Delay</div>
+            <div class="small" id="delayVal">0.28</div>
+          </div>
+          <input class="range" type="range" id="delay" min="0" max="0.6" step="0.01" value="0.28">
+        </div>
+
+        <div style="display:flex;gap:8px;align-items:center;justify-content:space-between">
+          <div class="small">Master Volume</div>
+          <input class="range" id="masterVol" type="range" min="0" max="1" step="0.01" value="0.92">
+        </div>
+      </aside>
+    </div>
+
+    <footer class="subtle" style="margin-top:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="credits"><div class="brand-mini">House Deck</div><div style="opacity:.7"> — single file demo • built for pregaming</div></div>
+        <div>Tip: Click "Start Audio" then choose a preset. Use headphones for best vibe.</div>
+      </div>
+    </footer>
+  </div>
 
 <script>
-/* =======================
-   HAUS DECK PRO v1.2
-   WebAudio + Sequencer Engine
-   iOS-friendly + Greyscale DJ UI
-======================= */
-const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-const audioCtx = new AudioContextClass();
+/* -----------------------------------------------------------
+   House Deck single-file Web Audio mini-DAW
+   - 4 tracks: Kick, Bass, Hat, Pad (pad = Tame Impala-style dreamy synth)
+   - 16-step sequencer per track
+   - Presets: Deep House, Tech House
+   - Reverb, Delay, Sidechain ducking (automated gain reduction)
+   - Scheduler with lookahead (common WebAudio pattern)
+-----------------------------------------------------------*/
 
-let isPlaying = false;
-let currentStep = 0;
-const tempo = 122;
-const stepInterval = (60 / tempo) / 4;
-const swing = 0.08;
+const audioState = {
+  ctx: null,
+  master: null,
+  masterGain: null,
+  reverb: null,
+  delayNode: null,
+  bpm: 122,
+  isPlaying: false,
+  current16: 0,
+  lookahead: 25.0, // ms
+  scheduleAheadTime: 0.1, // seconds
+  nextNoteTime: 0.0,
+  stepInterval: null,
+};
 
-/* =======================
-   TRACK DEFINITIONS
-======================= */
-const tracks = [
-  {name:'Kick', type:'sample', buffer:null, gain:1, steps:Array(16).fill(false), sidechain:true},
-  {name:'Snare', type:'sample', buffer:null, gain:0.8, steps:Array(16).fill(false), sidechain:false},
-  {name:'HiHat', type:'sample', buffer:null, gain:0.6, steps:Array(16).fill(false), sidechain:false},
-  {name:'Bass', type:'synth', synth:'saw', gain:0.8, steps:Array(16).fill(false), sidechain:true},
-  {name:'Pad', type:'synth', synth:'pad', gain:0.5, steps:Array(16).fill(false), sidechain:true},
-  {name:'FX', type:'synth', synth:'noise', gain:0.5, steps:Array(16).fill(false), sidechain:false}
+const UI = {
+  startBtn: document.getElementById('startBtn'),
+  playStopBtn: document.getElementById('playStopBtn'),
+  presetDeep: document.getElementById('presetDeep'),
+  presetTech: document.getElementById('presetTech'),
+  addSynth: document.getElementById('addSynth'),
+  rnd: document.getElementById('rnd'),
+  bpm: document.getElementById('bpm'),
+  bpmVal: document.getElementById('bpmVal'),
+  tracksContainer: document.getElementById('tracks'),
+  reverb: document.getElementById('reverb'),
+  reverbVal: document.getElementById('reverbVal'),
+  delay: document.getElementById('delay'),
+  delayVal: document.getElementById('delayVal'),
+  masterVol: document.getElementById('masterVol'),
+  clock: document.getElementById('clock'),
+  vuMeter: document.getElementById('vuMeter')
+};
+
+/* Basic helper nodes: create audio context and master chain */
+function initAudio(){
+  if (audioState.ctx) return;
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  audioState.ctx = ctx;
+
+  // master
+  audioState.master = ctx.createGain();
+  audioState.master.gain.value = 1.0;
+  audioState.masterGain = ctx.createGain();
+  audioState.masterGain.gain.value = Number(UI.masterVol.value);
+
+  // simple analyser for VU
+  audioState.analyser = ctx.createAnalyser();
+  audioState.analyser.fftSize = 512;
+
+  // reverb: build simple convolution with generated impulse
+  audioState.reverb = ctx.createConvolver();
+  audioState.reverb.buffer = makeReverbBuffer(ctx, 2.2);
+  audioState.reverbGain = ctx.createGain();
+  audioState.reverbGain.gain.value = Number(UI.reverb.value);
+
+  // delay
+  audioState.delayNode = ctx.createDelay(1.0);
+  audioState.delayNode.delayTime.value = Number(UI.delay.value);
+  audioState.delayFeedback = ctx.createGain();
+  audioState.delayFeedback.gain.value = 0.35;
+  audioState.delayGain = ctx.createGain();
+  audioState.delayGain.gain.value = 0.25;
+
+  // connect chain: master -> analyser -> destination
+  audioState.master.connect(audioState.reverb);
+  audioState.reverb.connect(audioState.reverbGain);
+  audioState.reverbGain.connect(audioState.masterGain);
+
+  audioState.master.connect(audioState.delayNode);
+  audioState.delayNode.connect(audioState.delayFeedback);
+  audioState.delayFeedback.connect(audioState.delayNode);
+  audioState.delayNode.connect(audioState.delayGain);
+  audioState.delayGain.connect(audioState.masterGain);
+
+  // dry to masterGain
+  audioState.master.connect(audioState.masterGain);
+
+  audioState.masterGain.connect(audioState.analyser);
+  audioState.analyser.connect(ctx.destination);
+
+  // compressor for glue
+  audioState.comp = ctx.createDynamicsCompressor();
+  audioState.masterGain.connect(audioState.comp);
+  audioState.comp.connect(ctx.destination);
+
+  // VU loop
+  startVUMeter();
+
+  // set initial times
+  audioState.current16 = 0;
+  audioState.nextNoteTime = ctx.currentTime;
+}
+
+/* Make a quick impulse response for reverb (small 'convolution' reverb) */
+function makeReverbBuffer(ctx, seconds){
+  const sampleRate = ctx.sampleRate;
+  const length = sampleRate * seconds;
+  const buffer = ctx.createBuffer(2, length, sampleRate);
+  for (let c=0;c<2;c++){
+    const ch = buffer.getChannelData(c);
+    for (let i=0;i<length;i++){
+      // exponential decay
+      ch[i] = (Math.random()*2-1) * Math.pow(1 - i/length, 3.0);
+    }
+  }
+  return buffer;
+}
+
+/* VU meter animation */
+function startVUMeter(){
+  const meter = UI.vuMeter;
+  const bar = meter.firstElementChild;
+  const arr = new Uint8Array(audioState.analyser.frequencyBinCount);
+  function tick(){
+    if (!audioState.ctx) return;
+    audioState.analyser.getByteFrequencyData(arr);
+    // average energy
+    let sum = 0;
+    for (let v of arr) sum += v;
+    let avg = sum / arr.length / 255; // 0-1
+    bar.style.height = Math.max(8, avg*100) + '%';
+    requestAnimationFrame(tick);
+  }
+  tick();
+}
+
+/* Sequencer data */
+const Tracks = [
+  { id:'kick',   name:'Kick',   pattern: createEmptyPattern(), type:'drum', color:'#ff7a7a' },
+  { id:'bass',   name:'Bass',   pattern: createEmptyPattern(), type:'bass', color:'#ffd08a' },
+  { id:'hat',    name:'Hat',    pattern: createEmptyPattern(), type:'hat', color:'#9fd3ff' },
+  { id:'pad',    name:'Pad',    pattern: createEmptyPattern(), type:'pad', color:'#c7a0ff' },
 ];
 
-/* =======================
-   LOAD DRUM SAMPLES
-======================= */
-const sampleFiles = {
-  Kick:'https://cdn.jsdelivr.net/gh/ai-music-samples/kick.wav',
-  Snare:'https://cdn.jsdelivr.net/gh/ai-music-samples/snare.wav',
-  HiHat:'https://cdn.jsdelivr.net/gh/ai-music-samples/hihat.wav'
-};
+function createEmptyPattern(){ return new Array(16).fill(0); }
 
-async function loadSamples(){
-  for(const track of tracks){
-    if(track.type==='sample'){
-      const resp = await fetch(sampleFiles[track.name]);
-      const arrayBuffer = await resp.arrayBuffer();
-      track.buffer = await audioCtx.decodeAudioData(arrayBuffer);
+/* UI: render track rows + step buttons */
+function renderTracks(){
+  UI.tracksContainer.innerHTML = '';
+  Tracks.forEach((t, ti) => {
+    const row = document.createElement('div');
+    row.className = 'track';
+    // meta
+    const meta = document.createElement('div');
+    meta.className = 'meta';
+    meta.innerHTML = `<div class="name">${t.name}</div><div class="small">type: ${t.type}</div>`;
+    row.appendChild(meta);
+    // grid
+    const grid = document.createElement('div');
+    grid.className = 'grid';
+    for (let s=0;s<16;s++){
+      const step = document.createElement('div');
+      step.className = 'step' + (t.pattern[s] ? ' on':'');
+      step.dataset.track = ti;
+      step.dataset.step = s;
+      step.title = `${t.name} • Step ${s+1}`;
+      step.innerText = s%4===0? (s/4)+1 : '';
+      step.addEventListener('click', (ev)=>{
+        toggleStep(ti, s);
+      });
+      grid.appendChild(step);
     }
-  }
-}
-loadSamples();
-
-/* =======================
-   SEQUENCER UI
-======================= */
-const sequencerDiv = document.getElementById('sequencer');
-tracks.forEach((track, i)=>{
-  const row = document.createElement('div');
-  row.className = 'track-row';
-  track.steps.forEach((step,j)=>{
-    const s = document.createElement('div');
-    s.className = 'step';
-    s.addEventListener('click',()=> {
-      track.steps[j] = !track.steps[j];
-      s.classList.toggle('active');
-    });
-    row.appendChild(s);
+    row.appendChild(grid);
+    UI.tracksContainer.appendChild(row);
   });
-  sequencerDiv.appendChild(row);
-});
-
-/* =======================
-   MIXER UI
-======================= */
-const mixerDiv = document.getElementById('mixer');
-tracks.forEach((track,i)=>{
-  const ch = document.createElement('div'); ch.className='channel';
-  const label = document.createElement('div'); label.textContent=track.name;
-  const vol = document.createElement('input'); vol.type='range'; vol.min=0; vol.max=1; vol.step=0.01; vol.value=track.gain;
-  vol.className='fader';
-  vol.addEventListener('input',()=>{track.gain=parseFloat(vol.value);});
-  ch.appendChild(label); ch.appendChild(vol);
-  mixerDiv.appendChild(ch);
-});
-
-/* =======================
-   SYNTH PLAYBACK WITH ADSR & FILTER
-======================= */
-function playSynth(type, freq=220, gain=0.5){
-  const osc = audioCtx.createOscillator();
-  const g = audioCtx.createGain();
-  g.gain.setValueAtTime(0, audioCtx.currentTime);
-  g.gain.linearRampToValueAtTime(gain, audioCtx.currentTime + 0.01);
-  g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.25);
-
-  if(type==='saw') osc.type='sawtooth';
-  else if(type==='pad') osc.type='sine';
-  else if(type==='noise'){
-    const bufferSize = audioCtx.sampleRate * 0.2;
-    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-    const data = buffer.getChannelData(0);
-    for(let i=0;i<bufferSize;i++) data[i] = Math.random()*2-1;
-    const noise = audioCtx.createBufferSource();
-    noise.buffer = buffer;
-    noise.connect(g).connect(audioCtx.destination);
-    noise.start();
-    return;
-  }
-
-  osc.frequency.value = freq;
-  osc.connect(g).connect(audioCtx.destination);
-  osc.start();
-  osc.stop(audioCtx.currentTime + 0.25);
 }
 
-/* =======================
-   SAMPLE PLAYBACK
-======================= */
-function playSample(buffer, gain=1){
-  const src = audioCtx.createBufferSource();
-  src.buffer = buffer;
-  const g = audioCtx.createGain();
-  g.gain.value = gain;
-  src.connect(g).connect(audioCtx.destination);
-  src.start();
+/* Toggle a step on/off */
+function toggleStep(trackIndex, stepIndex){
+  const t = Tracks[trackIndex];
+  t.pattern[stepIndex] = t.pattern[stepIndex]?0:1;
+  renderTracks();
 }
 
-/* =======================
-   SIDECHAIN DUCKING
-======================= */
-function applySidechain(track){
-  if(track.sidechain){
-    const kickStep = tracks[0].steps[currentStep];
-    if(kickStep) track.gain *= 0.5;
-  }
-  return track.gain;
+/* Scheduler: schedule notes slightly ahead for accurate timing */
+function nextNote(){
+  const secondsPerBeat = 60.0 / audioState.bpm;
+  // 16th notes: quarter note / 4
+  audioState.nextNoteTime += 0.25 * secondsPerBeat;
+  audioState.current16 = (audioState.current16 + 1) % 16;
 }
 
-/* =======================
-   STEP SEQUENCER
-======================= */
-function stepSequencer(){
-  tracks.forEach(track=>{
-    const stepGain = applySidechain(track);
-    if(track.steps[currentStep]){
-      if(track.type==='sample' && track.buffer) playSample(track.buffer, stepGain);
-      if(track.type==='synth') playSynth(track.synth, 60+currentStep*10, stepGain);
+/* schedule notes for a given time slot */
+function scheduleStep(stepIndex, time){
+  // highlight current step in UI
+  const allSteps = document.querySelectorAll('.step');
+  allSteps.forEach(s => {
+    if (Number(s.dataset.step) === stepIndex) {
+      s.classList.add('playing');
+      setTimeout(()=> s.classList.remove('playing'), 100);
     }
   });
 
-  let delay = stepInterval;
-  if(currentStep % 2 === 1) delay += stepInterval * swing;
-
-  currentStep = (currentStep+1)%16;
-  if(isPlaying) setTimeout(stepSequencer, delay*1000);
-}
-
-/* =======================
-   BUTTONS WITH iOS AUDIO RESUME
-======================= */
-document.getElementById('playStop').addEventListener('click', async ()=>{
-  if (audioCtx.state === 'suspended') await audioCtx.resume(); // iOS fix
-  if(!isPlaying){isPlaying = true; stepSequencer();}
-  else{isPlaying = false; currentStep=0;}
-});
-
-document.getElementById('randomize').addEventListener('click',()=>{
-  tracks.forEach(track=>{
-    track.steps = track.steps.map(()=>Math.random()>0.7);
-    const row = sequencerDiv.children[tracks.indexOf(track)];
-    track.steps.forEach((val,i)=>{
-      row.children[i].classList.toggle('active', val);
-    });
-  });
-});
-
-/* =======================
-   RECORDING
-======================= */
-let mediaRecorder;
-let recordedChunks=[];
-document.getElementById('recordBtn').addEventListener('click',async()=>{
-  if(!mediaRecorder || mediaRecorder.state==='inactive'){
-    const dest = audioCtx.createMediaStreamDestination();
-    audioCtx.destination.connect(dest);
-    mediaRecorder = new MediaRecorder(dest.stream);
-    mediaRecorder.ondataavailable = e=>{recordedChunks.push(e.data);};
-    mediaRecorder.onstop = ()=>{
-      const blob = new Blob(recordedChunks,{type:'audio/wav'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download='haus_deck_recording.wav';
-      a.click();
-      recordedChunks=[];
-    };
-    mediaRecorder.start();
-  } else mediaRecorder.stop();
-});
-
-/* =======================
-   VISUALIZER
-======================= */
-const canvas = document.getElementById('visualizer');
-const ctx = canvas.getContext('2d');
-const analyser = audioCtx.createAnalyser();
-analyser.fftSize = 256;
-const dataArray = new Uint8Array(analyser.frequencyBinCount);
-audioCtx.destination.connect(analyser);
-
-function drawVisualizer(){
-  requestAnimationFrame(drawVisualizer);
-  analyser.getByteFrequencyData(dataArray);
-  ctx.fillStyle = '#000';
-  ctx.fillRect(0,0,canvas.width,canvas.height);
-  const barWidth = canvas.width / dataArray.length;
-  for(let i=0;i<dataArray.length;i++){
-    const h = dataArray[i];
-    ctx.fillStyle = `rgb(${h+100},${h+100},${h+100})`;
-    ctx.fillRect(i*barWidth, canvas.height-h, barWidth, h);
+  for (let ti=0; ti<Tracks.length; ti++){
+    if (Tracks[ti].pattern[stepIndex]){
+      const track = Tracks[ti];
+      if (track.id === 'kick') scheduleKick(time);
+      else if (track.id === 'hat') scheduleHiHat(time);
+      else if (track.id === 'bass') scheduleBassNote(time);
+      else if (track.id === 'pad') schedulePadChord(time);
+    }
   }
 }
-drawVisualizer();
 
-/* =======================
-   GENRE PRESETS
-======================= */
-const presets = {
-  deep: [
-    [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],
-    [0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0],
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-    [1,0,0,1,0,1,0,0,1,0,0,1,0,1,0,0],
-    [0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0],
-    [0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,1]
-  ],
-  tech: [
-    [1,0,0,1,1,0,0,1,1,0,0,1,1,0,0,1],
-    [0,0,1,0,0,1,0,0,1,0,0,1,0,0,1,0],
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-    [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],
-    [0,1,0,0,1,0,1,0,0,1,0,1,0,0,1,0],
-    [0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0]
-  ],
-  chill: [
-    [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],
-    [0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0],
-    [0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1],
-    [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],
-    [0,0,1,1,0,0,1,1,0,0,1,1,0,0,1,1],
-    [0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1]
-  ],
-  lofi: [
-    [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],
-    [0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0],
-    [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],
-    [0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1],
-    [0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0],
-    [0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1]
-  ],
-  progressive:[
-    [1,0,0,1,0,1,0,0,1,0,0,1,0,1,0,0],
-    [0,1,0,0,1,0,1,0,0,1,0,1,0,0,1,0],
-    [1,1,0,1,1,0,1,1,0,1,1,0,1,1,0,1],
-    [0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1],
-    [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],
-    [0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0]
-  ]
+/* Main scheduler loop */
+let schedulerTimer = null;
+function scheduler(){
+  if (!audioState.isPlaying) return;
+  const ctx = audioState.ctx;
+  while (audioState.nextNoteTime < ctx.currentTime + audioState.scheduleAheadTime) {
+    scheduleStep(audioState.current16, audioState.nextNoteTime);
+    nextNote();
+  }
+  schedulerTimer = setTimeout(scheduler, audioState.lookahead);
+}
+
+/* ---------- Instruments / voices ---------- */
+
+/* Kick: short sine pitch drop + transient */
+function scheduleKick(time){
+  const ctx = audioState.ctx;
+  // transient click
+  const click = ctx.createBufferSource();
+  const clickBuf = ctx.createBuffer(1, ctx.sampleRate * 0.02, ctx.sampleRate);
+  const d = clickBuf.getChannelData(0);
+  for (let i=0;i<d.length;i++){
+    d[i] = (Math.random()*2-1) * Math.exp(-i/ (0.002*ctx.sampleRate));
+  }
+  click.buffer = clickBuf;
+  const clickGain = ctx.createGain(); clickGain.gain.value = 0.8;
+  click.connect(clickGain);
+  clickGain.connect(audioState.master);
+
+  // body
+  const osc = ctx.createOscillator();
+  osc.type = 'sine';
+  const oscGain = ctx.createGain();
+  const startFreq = 110;
+  osc.frequency.setValueAtTime(startFreq, time);
+  osc.frequency.exponentialRampToValueAtTime(50, time + 0.12);
+  oscGain.gain.setValueAtTime(1.0, time);
+  oscGain.gain.exponentialRampToValueAtTime(0.0001, time + 0.32);
+
+  // connect through a short lowpass to tame
+  const lp = ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=1000;
+  osc.connect(oscGain).connect(lp).connect(audioState.master);
+
+  click.start(time);
+  click.stop(time + 0.03);
+  osc.start(time); osc.stop(time + 0.4);
+
+  // apply sidechain duck: schedule a gain dip on duckTargets
+  applySidechain(time);
+}
+
+/* hat: noise burst with highpass */
+function scheduleHiHat(time){
+  const ctx = audioState.ctx;
+  const buf = ctx.createBuffer(1, ctx.sampleRate * 0.06, ctx.sampleRate);
+  const data = buf.getChannelData(0);
+  for (let i=0;i<data.length;i++){
+    data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i/data.length, 2.5);
+  }
+  const src = ctx.createBufferSource(); src.buffer = buf;
+  const hp = ctx.createBiquadFilter(); hp.type='highpass'; hp.frequency.value = 7000;
+  const g = ctx.createGain(); g.gain.value = 0.45;
+  src.connect(hp); hp.connect(g); g.connect(audioState.master);
+  src.start(time); src.stop(time + 0.06);
+}
+
+/* Bass: simple saw oscillator with filter and envelope, sidechained */
+function scheduleBassNote(time){
+  const ctx = audioState.ctx;
+  const osc = ctx.createOscillator(); osc.type='sawtooth';
+  // pick note: root 55Hz for deep house, small random variation
+  const root = 55;
+  const detuneChoices = [0, 0, 0, 7]; // occasional 7 semitone for variation
+  const semitone = detuneChoices[Math.floor(Math.random()*detuneChoices.length)];
+  const frequency = root * Math.pow(2, semitone/12);
+  osc.frequency.setValueAtTime(frequency, time);
+
+  // filter
+  const filt = ctx.createBiquadFilter(); filt.type='lowpass'; filt.frequency.value = 600;
+  filt.Q.value = 0.8;
+
+  // envelope
+  const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, time);
+  g.gain.linearRampToValueAtTime(0.9, time + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.001, time + 0.42);
+
+  osc.connect(filt); filt.connect(g);
+  // route to master (so that master sends to reverb/delay)
+  g.connect(audioState.master);
+
+  osc.start(time); osc.stop(time + 0.6);
+}
+
+/* Pad chord: layered detuned saws with slow attack and stereo-ish movement */
+function schedulePadChord(time){
+  const ctx = audioState.ctx;
+  const root = 220; // high pad register, will be subtle
+  const detunes = [-14, -7, 0, 7]; // chord-ish intervals
+  const duration = 2.4;
+  detunes.forEach((st, i) => {
+    const o = ctx.createOscillator(); o.type='sawtooth';
+    const freq = root * Math.pow(2, st/12);
+    o.frequency.setValueAtTime(freq, time);
+    const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, time);
+    // slow ADSR
+    g.gain.linearRampToValueAtTime(0.32/(i+1), time + 0.18);
+    g.gain.exponentialRampToValueAtTime(0.001, time + duration);
+
+    // slight stereo via panner
+    const pan = ctx.createStereoPanner();
+    pan.pan.value = (i%2===0) ? -0.4 + Math.random()*0.08 : 0.4 - Math.random()*0.08;
+
+    // optional lowpass filter for warmth
+    const f = ctx.createBiquadFilter(); f.type='lowpass'; f.frequency.value = 1800 - (i*150);
+    o.connect(f); f.connect(g); g.connect(pan); pan.connect(audioState.master);
+    o.start(time); o.stop(time + duration + 0.05);
+  });
+}
+
+/* Sidechain ducking: simple scheduled gain reduction on master targets.
+   We'll create a short duck on master gain for a tight pumping effect. */
+function applySidechain(kickTime){
+  const duckGain = audioState.master.gain;
+  // quick dip starting at kickTime, attack 0.01, hold 0.12, release 0.24
+  const attack = 0.01, hold = 0.12, release = 0.22;
+  duckGain.cancelScheduledValues(kickTime);
+  duckGain.setValueAtTime(1.0, kickTime);
+  duckGain.linearRampToValueAtTime(0.28, kickTime + attack);
+  duckGain.setValueAtTime(0.28, kickTime + attack + hold);
+  duckGain.linearRampToValueAtTime(1.0, kickTime + attack + hold + release);
+}
+
+/* ---------- UI & Controls ---------- */
+UI.startBtn.onclick = async () => {
+  initAudio();
+  if (audioState.ctx.state === 'suspended') await audioState.ctx.resume();
+  UI.startBtn.innerText = 'Audio Ready';
+  UI.startBtn.classList.add('ghost');
 };
 
-document.getElementById('genreSelect').addEventListener('change', e=>{
-  const preset = presets[e.target.value];
-  if(!preset) return;
-  tracks.forEach((track,i)=>{
-    track.steps = preset[i].slice();
-    const row = sequencerDiv.children[i];
-    track.steps.forEach((val,j)=>{
-      row.children[j].classList.toggle('active', val);
-    });
+UI.playStopBtn.onclick = () => {
+  if (!audioState.ctx) { alert('Click Start Audio first'); return; }
+  audioState.isPlaying = !audioState.isPlaying;
+  UI.playStopBtn.innerText = audioState.isPlaying ? 'Stop' : 'Play';
+  if (audioState.isPlaying){
+    audioState.current16 = 0;
+    audioState.nextNoteTime = audioState.ctx.currentTime + 0.05;
+    scheduler();
+  } else {
+    clearTimeout(schedulerTimer);
+  }
+};
+
+UI.bpm.oninput = (e)=> {
+  audioState.bpm = Number(e.target.value);
+  UI.bpmVal.innerText = audioState.bpm;
+};
+
+UI.reverb.oninput = (e)=>{
+  audioState.reverbGain.gain.value = Number(e.target.value);
+  UI.reverbVal.innerText = Number(e.target.value).toFixed(2);
+};
+
+UI.delay.oninput = (e)=>{
+  audioState.delayNode.delayTime.value = Number(e.target.value);
+  UI.delayVal.innerText = Number(e.target.value).toFixed(2);
+};
+
+UI.masterVol.oninput = (e)=>{
+  audioState.masterGain.gain.value = Number(e.target.value);
+};
+
+/* Presets: fill patterns with rhythmic patterns */
+UI.presetDeep.onclick = ()=>{
+  // deep house: 4/4 kick on 1, bass syncopated, hats 16th off-beat, pad on whole notes
+  Tracks[0].pattern = createEmptyPattern(); Tracks[1].pattern = createEmptyPattern();
+  Tracks[2].pattern = createEmptyPattern(); Tracks[3].pattern = createEmptyPattern();
+  // kick on 0,4,8,12
+  [0,4,8,12].forEach(i=>Tracks[0].pattern[i]=1);
+  // bass: plays on 0,2,6,10 (syncopated)
+  [0,2,6,10].forEach(i=>Tracks[1].pattern[i]=1);
+  // hats: off-beat 8th + ghost 16ths
+  for (let i=0;i<16;i++){ if (i%2===1) Tracks[2].pattern[i]=1; if (i%4===3) Tracks[2].pattern[i]=1 }
+  // pad: long on 0 and 8 for atmosphere
+  Tracks[3].pattern[0]=1; Tracks[3].pattern[8]=1;
+  renderTracks();
+  if (!audioState.isPlaying && audioState.ctx) {
+    // quick preview: play one bar
+    audioState.isPlaying = true; UI.playStopBtn.innerText='Stop';
+    audioState.current16=0; audioState.nextNoteTime=audioState.ctx.currentTime;
+    setTimeout(()=>{ audioState.isPlaying=false; UI.playStopBtn.innerText='Play'; }, 1200);
+    scheduler();
+  }
+};
+
+UI.presetTech.onclick = ()=>{
+  Tracks[0].pattern = createEmptyPattern(); Tracks[1].pattern = createEmptyPattern();
+  Tracks[2].pattern = createEmptyPattern(); Tracks[3].pattern = createEmptyPattern();
+  // tighter kick: 0,6,8,14
+  [0,6,8,14].forEach(i=>Tracks[0].pattern[i]=1);
+  // bass: syncopated pattern
+  [0,3,7,9,12].forEach(i=>Tracks[1].pattern[i]=1);
+  // hats: faster 16th pattern (every 2) + some random
+  for (let i=0;i<16;i++){ if (i%2===0) Tracks[2].pattern[i]=1; }
+  // pad: sparser (1 on 0)
+  Tracks[3].pattern[0]=1;
+  renderTracks();
+  if (!audioState.isPlaying && audioState.ctx) {
+    audioState.isPlaying = true; UI.playStopBtn.innerText='Stop';
+    audioState.current16=0; audioState.nextNoteTime=audioState.ctx.currentTime;
+    setTimeout(()=>{ audioState.isPlaying=false; UI.playStopBtn.innerText='Play'; }, 1200);
+    scheduler();
+  }
+};
+
+UI.addSynth.onclick = ()=>{
+  // toggle an extra pad hit at 4 and 12 for a dreamy "Tame Impala" vibe
+  Tracks[3].pattern[4]=1; Tracks[3].pattern[12]=1;
+  renderTracks();
+};
+
+UI.rnd.onclick = ()=>{
+  // randomize except kick (keep kick on 4/4)
+  Tracks[0].pattern = createEmptyPattern();
+  [0,4,8,12].forEach(i=>Tracks[0].pattern[i]=1);
+  for (let t=1;t<Tracks.length;t++){
+    for (let i=0;i<16;i++){
+      Tracks[t].pattern[i] = Math.random() > 0.66 ? 1 : 0;
+    }
+  }
+  renderTracks();
+};
+
+/* On load: render initial empty tracks */
+renderTracks();
+
+/* tick display */
+setInterval(()=>{
+  if (!audioState.ctx) return;
+  const s = Math.floor((audioState.ctx.currentTime % 60)).toString().padStart(2,'0');
+  const m = Math.floor((audioState.ctx.currentTime/60)%60).toString().padStart(2,'0');
+  UI.clock.innerText = `${m}:${s}`;
+}, 700);
+
+/* initial BPM value */
+UI.bpmVal.innerText = UI.bpm.value;
+
+/* Render playing step highlight removal after each step to keep UI snappy */
+document.addEventListener('visibilitychange', ()=>{ if (document.hidden) { /* stop audio if tab not visible? optional */ } });
+
+/* Ensure a render loop for playing highlighting (optional) */
+(function stepHighlighter(){
+  // Remove playing marks periodically
+  document.querySelectorAll('.step.playing').forEach(el => {
+    // leave it; CSS removal handled in scheduleStep timeout
   });
+  requestAnimationFrame(stepHighlighter);
+})();
+
+/* Graceful stop before unload */
+window.addEventListener('beforeunload', ()=> {
+  if (audioState.ctx) audioState.ctx.close();
 });
+
+/* End of file */
 </script>
 </body>
 </html>
