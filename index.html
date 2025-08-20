@@ -1,167 +1,847 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pro House Music Soundboard</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Night Shift — Ultimate Pro Rig (Voice FX Recorder)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
 <style>
-body { margin:0; font-family:'Arial', sans-serif; background:#121212; color:#fff; }
-h1 { text-align:center; color:#0ff; margin:10px 0; font-family:'Orbitron', sans-serif; }
-.container { display:flex; flex-direction:column; align-items:center; padding:10px; }
-.panel { background:#1e1e1e; border-radius:8px; box-shadow:0 0 15px #0ff; padding:15px; margin:10px; width:95%; max-width:900px; }
-.buttons, .instrument-controls { display:flex; justify-content:space-around; margin-top:10px; }
-button { background:#0ff; border:none; border-radius:5px; padding:8px 16px; font-weight:bold; cursor:pointer; color:#121212; font-size:14px; transition: all 0.2s ease; }
-button:hover { background:#0aa; }
-.keys { display:flex; justify-content:center; margin-top:10px; flex-wrap:wrap; }
-.key { width:40px; height:120px; margin:2px; background:#fff; border-radius:4px; cursor:pointer; display:flex; align-items:flex-end; justify-content:center; font-size:12px; color:#000; user-select:none; }
-.key.black { background:#000; color:#fff; width:30px; height:80px; margin-left:-15px; margin-right:-15px; z-index:1; position:relative; }
-label { margin-right:5px; } input[type=range] { width:120px; }
+:root{ --bg:#050608; --panel:#0f1114; --muted:#9aa7b2; --accent:#2ff0d6; --hot:#ff3b6b; --glass: rgba(255,255,255,0.02); }
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:linear-gradient(180deg,#020203,#07080a);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto;color:#eaf2f8;padding:16px;display:flex;justify-content:center}
+.container{width:1200px;max-width:calc(100vw - 32px);border-radius:12px;padding:12px;background:linear-gradient(180deg,rgba(255,255,255,0.01),transparent);box-shadow:0 16px 60px rgba(0,0,0,0.75);border:1px solid rgba(255,255,255,0.02)}
+.header{display:flex;justify-content:space-between;align-items:center}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:52px;height:52px;border-radius:10px;background:linear-gradient(135deg,#0d1116,#101418);display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.03)}
+.logo span{font-weight:800;color:var(--accent)}
+.lead{color:var(--muted);font-size:13px}
+.controls{display:flex;gap:8px;align-items:center}
+.btn{background:linear-gradient(180deg,#0f1116,#0b0d11);border:1px solid #22272f;padding:10px 12px;border-radius:8px;color:#eaf2f8;cursor:pointer;font-weight:700}
+.btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.03);color:var(--muted)}
+.btn.play{background:linear-gradient(90deg,#ff3366,#ff6a8c);box-shadow:0 8px 28px rgba(255,51,102,0.08)}
+.layout{display:grid;grid-template-columns:320px 1fr 360px;gap:12px;margin-top:12px}
+.panel{background:linear-gradient(180deg,rgba(255,255,255,0.01),transparent);border-radius:10px;padding:12px;border:1px solid rgba(255,255,255,0.02);min-height:520px}
+.small{font-size:12px;color:var(--muted)}
+.row{display:flex;gap:8px;align-items:center}
+.track-row{display:grid;grid-template-columns:100px repeat(16,1fr);gap:6px;align-items:center}
+.track-meta{background:#0b0d10;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.02);text-align:left}
+.step{height:40px;border-radius:6px;background:var(--glass);border:1px solid rgba(255,255,255,0.02);display:flex;align-items:center;justify-content:center;color:var(--muted);cursor:pointer;font-weight:700;position:relative}
+.step.on{background:linear-gradient(180deg,#182033,#0f1722);color:#fff;box-shadow:inset 0 0 0 2px rgba(55,255,225,0.06)}
+.step.play{outline:2px solid rgba(47,240,214,0.06);transform:translateY(-3px)}
+.piano{display:flex;gap:2px;height:100px;align-items:flex-end;padding:6px;background:#06070a;border-radius:8px}
+.white{width:40px;height:100px;border-radius:6px;background:#fff;color:#0b0b0d;display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;font-weight:700;cursor:pointer;border:1px solid #ccc}
+.black{width:26px;height:64px;background:#0f1114;color:#fff;position:relative;margin-left:-18px;margin-right:-18px;border-radius:4px;z-index:2;display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;cursor:pointer}
+.synth-ctrls{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-top:8px}
+.smallpad{padding:6px;border-radius:6px;background:rgba(255,255,255,0.01);border:1px solid rgba(255,255,255,0.02)}
+.voice-pad{background:#0b0d10;border:1px solid rgba(255,255,255,0.03);padding:8px;border-radius:8px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.voice-list{display:flex;flex-direction:column;gap:6px;max-height:200px;overflow:auto;margin-top:8px}
+.footer{margin-top:12px;text-align:center;color:var(--muted);font-size:12px}
+@media (max-width:1200px){ .layout{grid-template-columns:1fr;gap:8px} .panel{min-height:420px} }
 </style>
 </head>
 <body>
-<h1>Pro House Music Soundboard</h1>
-<div class="container">
+  <div class="container" role="application" aria-label="Night Shift Ultimate Pro Rig with Voice Recorder">
+    <div class="header">
+      <div class="brand">
+        <div class="logo"><span>NS</span></div>
+        <div>
+          <div style="font-weight:800">Night Shift — Ultimate Pro Rig</div>
+          <div class="lead">House / Chill House presets • Piano • Trumpet • Synths • Voice Recorder w/ FX & Download</div>
+        </div>
+      </div>
 
-<!-- Presets -->
-<div class="panel">
-<h2>Presets</h2>
-<div class="buttons">
-<button onclick="loadPreset('deep')">Deep House</button>
-<button onclick="loadPreset('tech')">Tech House</button>
-<button onclick="loadPreset('chill')">Chill House</button>
-<button onclick="loadPreset('random')">Randomize</button>
-</div>
-</div>
+      <div class="controls">
+        <button id="startAudio" class="btn">Start Audio</button>
+        <button id="playBtn" class="btn play">Play</button>
+        <button id="stopBtn" class="btn ghost">Stop</button>
+        <div style="width:8px"></div>
+        <div class="small">BPM</div>
+        <input id="bpm" type="range" min="80" max="140" value="124" style="width:140px">
+        <div id="bpmVal" class="small" style="width:40px;text-align:right;font-weight:700">124</div>
+      </div>
+    </div>
 
-<!-- Drums Panel -->
-<div class="panel">
-<h2>Drums</h2>
-<div class="buttons">
-<button onclick="playDrum('kick')">Kick</button>
-<button onclick="playDrum('snare')">Snare</button>
-<button onclick="playDrum('hihat')">Hi-Hat</button>
-</div>
-<div class="instrument-controls">
-<label>Loop<input type="checkbox" id="drumLoop"></label>
-<label>Pitch<input type="range" id="drumPitch" min="0.5" max="2" value="1" step="0.01"></label>
-</div>
-</div>
+    <div class="layout">
+      <!-- LEFT -->
+      <div class="panel">
+        <div style="font-weight:700">Samples & Presets</div>
+        <div class="small" style="margin-top:6px">Generated multisamples (legal & lightweight). You can paste real WAVs later if you want.</div>
 
-<!-- Piano/Synth Panel -->
-<div class="panel">
-<h2>Piano / Synth</h2>
-<div class="keys" id="pianoKeys"></div>
-<div class="instrument-controls">
-<label>Loop<input type="checkbox" id="pianoLoop"></label>
-<label>Pitch<input type="range" id="pianoPitch" min="0.5" max="2" value="1" step="0.01"></label>
-</div>
-</div>
+        <div style="margin-top:12px">
+          <div style="font-weight:700">Instruments</div>
+          <div class="small" style="margin-top:6px">Pick an instrument to play live or assign to tracks.</div>
+          <div style="margin-top:8px;display:flex;gap:8px">
+            <select id="instSelect" class="small" style="flex:1">
+              <option value="piano">Piano</option>
+              <option value="trumpet">Trumpet</option>
+              <option value="pad">Warm Pad</option>
+              <option value="pluck">Pluck</option>
+              <option value="lead">Lead</option>
+            </select>
+            <select id="assignTrack" class="small" style="width:140px">
+              <option value="kick">Kick</option><option value="snare">Clap</option><option value="hat">Hat</option><option value="bass" selected>Bass</option><option value="pad">Pad</option>
+            </select>
+            <button id="assignBtn" class="btn ghost">Assign</button>
+          </div>
+        </div>
 
-<!-- Trumpet / Brass Panel -->
-<div class="panel">
-<h2>Trumpet / Brass</h2>
-<div class="buttons">
-<button onclick="playTrumpet('C')">C</button>
-<button onclick="playTrumpet('E')">E</button>
-<button onclick="playTrumpet('G')">G</button>
-</div>
-<div class="instrument-controls">
-<label>Loop<input type="checkbox" id="trumpetLoop"></label>
-<label>Pitch<input type="range" id="trumpetPitch" min="0.5" max="2" value="1" step="0.01"></label>
-</div>
-</div>
+        <div style="margin-top:12px">
+          <div style="font-weight:700">Presets</div>
+          <div class="small" style="margin-top:6px">Deep, Tech, Progressive (Zhu), Chill (Ben Böhmer / Barry Can't Swim)</div>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button id="presetDeep" class="btn ghost">Deep House</button>
+            <button id="presetTech" class="btn ghost">Tech House</button>
+            <button id="presetProg" class="btn ghost">Progressive / ZHU</button>
+            <button id="presetChill" class="btn ghost">Chill House</button>
+          </div>
+        </div>
 
-<!-- FX Panel -->
-<div class="panel">
-<h2>FX</h2>
-<div class="buttons">
-<button onclick="playFX('sweep')">Sweep</button>
-<button onclick="playFX('riser')">Riser</button>
-<button onclick="playFX('whiteNoise')">White Noise</button>
-</div>
-</div>
+        <div style="margin-top:12px">
+          <div style="font-weight:700">Randomization</div>
+          <div class="small" style="margin-top:6px">Musical Random, Sparse, Chef's Random.</div>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button id="randMusical" class="btn ghost">Musical Random</button>
+            <button id="randSparse" class="btn ghost">Sparse</button>
+            <button id="chefRand" class="btn ghost">Chef's Random</button>
+          </div>
+        </div>
+      </div>
 
-</div>
+      <!-- CENTER: Sequencer -->
+      <div class="panel">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div><strong>Sequencer</strong><div class="small">16 steps • vel/prob/offset</div></div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="small">Swing</div>
+            <input id="swing" type="range" min="0" max="100" value="12" style="width:160px">
+            <div id="swingVal" class="small" style="width:40px;text-align:right">12</div>
+          </div>
+        </div>
+
+        <div id="sequencer" style="margin-top:12px;overflow:auto"></div>
+
+        <div style="margin-top:12px;display:flex;gap:8px">
+          <button id="modeStep" class="btn ghost">Step</button>
+          <button id="modeVel" class="btn ghost">Vel</button>
+          <button id="modeProb" class="btn ghost">Prob</button>
+          <button id="modeOffset" class="btn ghost">Offset</button>
+          <div style="flex:1"></div>
+          <div class="small">Bars</div>
+          <select id="bars" class="small"><option>1</option><option>2</option><option selected>4</option><option>8</option></select>
+        </div>
+      </div>
+
+      <!-- RIGHT: Mixer, Voice Recorder, Synth -->
+      <div class="panel">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="font-weight:700">Mixer / Voice Recorder</div>
+          <div class="small">Live FX & Pads</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+          <div><div class="small">Reverb</div><input id="reverb" type="range" min="0" max="1" step="0.01" value="0.28"></div>
+          <div><div class="small">Delay</div><input id="delay" type="range" min="0" max="0.7" step="0.01" value="0.28"></div>
+          <div><div class="small">Chorus</div><input id="chorus" type="range" min="0" max="1" step="0.01" value="0.12"></div>
+          <div><div class="small">Phaser</div><input id="phaser" type="range" min="0" max="1" step="0.01" value="0.12"></div>
+          <div style="grid-column:1/3"><div class="small">Filter LFO</div><input id="filterLfo" type="range" min="0" max="1200" value="220"></div>
+        </div>
+
+        <div style="margin-top:12px">
+          <div style="font-weight:700">Voice Recorder — record a phrase and add it as a playable sampler pad</div>
+          <div class="small" style="margin-top:6px">Record from mic, apply Pitch/Reverb/Delay/Distortion, trigger live and export processed WAV.</div>
+
+          <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
+            <button id="recStart" class="btn ghost">Start Recording</button>
+            <button id="recStop" class="btn ghost">Stop</button>
+            <div style="flex:1"></div>
+            <div class="small">Pitch (semitones)</div>
+            <input id="voicePitch" type="range" min="-12" max="12" value="0" style="width:100px">
+            <div id="voicePitchVal" class="smallpad">0</div>
+          </div>
+
+          <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
+            <div class="small">Reverb</div><input id="voiceReverb" type="range" min="0" max="1" step="0.01" value="0.32">
+            <div class="small">Delay</div><input id="voiceDelay" type="range" min="0" max="0.6" step="0.01" value="0.18">
+            <div class="small">Distort</div><input id="voiceDist" type="range" min="0" max="1" step="0.01" value="0.0">
+          </div>
+
+          <div style="margin-top:10px">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div class="small">Recorded Voice Pads</div>
+              <div class="small">Click a pad to play it with FX; assign to 'Pad' track to sequence.</div>
+            </div>
+            <div id="voiceList" class="voice-list"></div>
+          </div>
+        </div>
+
+        <div style="margin-top:12px">
+          <div style="font-weight:700">Synth Patch</div>
+          <div class="synth-ctrls">
+            <label class="small">Osc1 <select id="osc1"><option>sawtooth</option><option>square</option><option>sine</option></select></label>
+            <label class="small">Osc2 <select id="osc2"><option>off</option><option>sawtooth</option><option>square</option></select></label>
+            <label class="small">Detune <input id="detune" type="range" min="-24" max="24" value="0"></label>
+            <label class="small">Attack <input id="envA" type="range" min="0" max="1" step="0.01" value="0.01"></label>
+            <label class="small">Decay <input id="envD" type="range" min="0" max="2" step="0.01" value="0.2"></label>
+            <label class="small">Sustain <input id="envS" type="range" min="0" max="1" step="0.01" value="0.8"></label>
+            <label class="small">Release <input id="envR" type="range" min="0" max="4" step="0.01" value="0.6"></label>
+            <label class="small">Filter <input id="filterCut" type="range" min="80" max="12000" value="2400"></label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:12px" class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><strong>Keyboard / Live Play</strong><div class="small">Click keys to play sampled piano / synth</div></div>
+        <div class="small">Octave <span id="octLabel" class="small">3</span></div>
+      </div>
+      <div style="margin-top:8px" id="livePiano" class="piano"></div>
+    </div>
+
+    <div class="footer small">Tip: Record a shout, drop it to the Pad track, pitch it down for a Fisher-style low voice or pitch up for a chipmunk lead. Use the download button to export processed vocal WAVs.</div>
+  </div>
 
 <script>
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+/* ===============================
+   Night Shift — Ultimate Pro Rig
+   Adds: Voice Recorder with FX baked into downloadable WAV
+   =============================== */
 
-// ----- DRUMS -----
-function playDrum(type){
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    let pitch = parseFloat(document.getElementById('drumPitch').value);
-    gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
-    osc.connect(gain).connect(audioCtx.destination);
+/* ----------- Globals & UI refs ----------- */
+const UI = {
+  startAudio: document.getElementById('startAudio'),
+  playBtn: document.getElementById('playBtn'),
+  stopBtn: document.getElementById('stopBtn'),
+  bpm: document.getElementById('bpm'),
+  bpmVal: document.getElementById('bpmVal'),
+  swing: document.getElementById('swing'),
+  swingVal: document.getElementById('swingVal'),
+  sequencer: document.getElementById('sequencer'),
+  modeStep: document.getElementById('modeStep'),
+  modeVel: document.getElementById('modeVel'),
+  modeProb: document.getElementById('modeProb'),
+  modeOffset: document.getElementById('modeOffset'),
+  bars: document.getElementById('bars'),
+  instSelect: document.getElementById('instSelect'),
+  assignTrack: document.getElementById('assignTrack'),
+  assignBtn: document.getElementById('assignBtn'),
+  presetDeep: document.getElementById('presetDeep'),
+  presetTech: document.getElementById('presetTech'),
+  presetProg: document.getElementById('presetProg'),
+  presetChill: document.getElementById('presetChill'),
+  randMusical: document.getElementById('randMusical'),
+  randSparse: document.getElementById('randSparse'),
+  chefRand: document.getElementById('chefRand'),
+  reverb: document.getElementById('reverb'),
+  delay: document.getElementById('delay'),
+  chorus: document.getElementById('chorus'),
+  phaser: document.getElementById('phaser'),
+  filterLfo: document.getElementById('filterLfo'),
+  recStart: document.getElementById('recStart'),
+  recStop: document.getElementById('recStop'),
+  voicePitch: document.getElementById('voicePitch'),
+  voicePitchVal: document.getElementById('voicePitchVal'),
+  voiceReverb: document.getElementById('voiceReverb'),
+  voiceDelay: document.getElementById('voiceDelay'),
+  voiceDist: document.getElementById('voiceDist'),
+  voiceList: document.getElementById('voiceList'),
+  livePiano: document.getElementById('livePiano'),
+  octLabel: document.getElementById('octLabel'),
+  bpmValEl: document.getElementById('bpmVal'),
+};
 
-    if(type==='kick'){ osc.type='sine'; osc.frequency.setValueAtTime(100*pitch, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime+0.5);}
-    else if(type==='snare'){ osc.type='triangle'; osc.frequency.setValueAtTime(200*pitch, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime+0.2);}
-    else if(type==='hihat'){ osc.type='square'; osc.frequency.setValueAtTime(8000*pitch, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime+0.1);}
+let audioCtx = null;
+let master, masterGain, analyser, reverbNode, reverbSend, delayNode, delayFB, delaySend, phaser, chorus, filterLfo, filterLfoGain, masterLP;
+let recordDest = null;
+let isPlaying = false;
+let bpm = Number(UI.bpm.value);
+let swingAmount = Number(UI.swing.value)/100;
+const lookAhead = 0.1;
+let currentStep = 0;
+let nextNoteTime = 0;
+let scheduleTimer = null;
 
-    osc.start(); osc.stop(audioCtx.currentTime+0.5);
+/* generated sample buffers */
+const generated = { kick:null, snare:null, hat:null, piano:{}, trumpet:{}, pad:null };
 
-    if(document.getElementById('drumLoop').checked) setTimeout(()=>playDrum(type), 600);
+/* tracks */
+const TRACKS = [
+  { id:'kick', name:'Kick', type:'drum', pattern:Array.from({length:16}).map(()=>({on:false, vel:110, prob:100, offset:0})), gain:1, muted:false, solo:false, instrument:'kick' },
+  { id:'snare', name:'Clap', type:'drum', pattern:Array.from({length:16}).map(()=>({on:false, vel:100, prob:100, offset:0})), gain:1, muted:false, solo:false, instrument:'snare' },
+  { id:'hat', name:'Hat', type:'drum', pattern:Array.from({length:16}).map(()=>({on:false, vel:90, prob:100, offset:0})), gain:1, muted:false, solo:false, instrument:'hat' },
+  { id:'bass', name:'Bass', type:'synth', pattern:Array.from({length:16}).map(()=>({on:false, vel:110, prob:100, offset:0})), gain:1, muted:false, solo:false, instrument:'bass' },
+  { id:'pad', name:'Pad', type:'synth', pattern:Array.from({length:16}).map(()=>({on:false, vel:100, prob:100, offset:0})), gain:1, muted:false, solo:false, instrument:'pad' },
+];
+
+/* recorded voice pads */
+let voicePads = []; // {id, name, buffer}
+
+let mediaStream = null;
+let mediaRecorder = null;
+let recordedChunks = [];
+
+/* ---------- Audio init & routing ---------- */
+function initAudio(){
+  if (audioCtx) return;
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  master = audioCtx.createGain(); master.gain.value = 1;
+  masterGain = audioCtx.createGain(); masterGain.gain.value = 0.95;
+  analyser = audioCtx.createAnalyser(); analyser.fftSize = 512;
+
+  // FX nodes
+  reverbNode = audioCtx.createConvolver(); reverbNode.buffer = makeIR(2.8);
+  reverbSend = audioCtx.createGain(); reverbSend.gain.value = Number(UI.reverb.value);
+  delayNode = audioCtx.createDelay(1.2); delayNode.delayTime.value = Number(UI.delay.value);
+  delayFB = audioCtx.createGain(); delayFB.gain.value = 0.36;
+  delaySend = audioCtx.createGain(); delaySend.gain.value = 0.22;
+  delayNode.connect(delayFB); delayFB.connect(delayNode); delayNode.connect(delaySend);
+  phaser = makePhaser(audioCtx, {stages:4, baseFreq:700, depth:260});
+  chorus = makeChorus(audioCtx);
+
+  // master filter + lfo
+  masterLP = audioCtx.createBiquadFilter(); masterLP.type='lowpass'; masterLP.frequency.value = 20000;
+  filterLfo = audioCtx.createOscillator(); filterLfo.type='sine'; filterLfo.frequency.value = 0.07;
+  filterLfoGain = audioCtx.createGain(); filterLfoGain.gain.value = Number(UI.filterLfo.value);
+  filterLfo.connect(filterLfoGain).connect(masterLP.frequency); filterLfo.start();
+
+  // routing
+  master.connect(reverbNode); reverbNode.connect(reverbSend); reverbSend.connect(masterGain);
+  master.connect(delayNode); delaySend.connect(masterGain);
+  master.connect(phaser.input); phaser.node.connect(masterGain);
+  chorus.input.connect(chorus.output); chorus.output.connect(masterGain);
+  master.connect(masterGain); masterGain.connect(masterLP).connect(analyser).connect(audioCtx.destination);
+
+  // per-track busses
+  TRACKS.forEach(t=>{
+    t.bus = audioCtx.createGain(); t.bus.gain.value = t.gain; t.bus.connect(master);
+  });
+
+  // record dest
+  recordDest = audioCtx.createMediaStreamDestination();
+  masterGain.connect(recordDest);
+
+  // generate generated sample buffers
+  generateGeneratedBuffers();
 }
 
-// ----- PIANO KEYS -----
-const notes=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B','C2'];
-const pianoContainer=document.getElementById('pianoKeys');
-notes.forEach(note=>{
-    const key=document.createElement('div'); key.classList.add('key');
-    if(note.includes('#')) key.classList.add('black');
-    key.textContent=note;
-    key.addEventListener('click',()=>playNote(note));
-    pianoContainer.appendChild(key);
-});
-function playNote(note){
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-    osc.connect(gain).connect(audioCtx.destination);
-    let pitch=parseFloat(document.getElementById('pianoPitch').value);
-    const noteFreq={'C':261.63,'C#':277.18,'D':293.66,'D#':311.13,'E':329.63,'F':349.23,'F#':369.99,'G':392.00,'G#':415.30,'A':440.00,'A#':466.16,'B':493.88,'C2':523.25};
-    osc.frequency.setValueAtTime(noteFreq[note]*pitch, audioCtx.currentTime);
-    osc.type='sawtooth';
-    osc.start(); osc.stop(audioCtx.currentTime+1);
-    if(document.getElementById('pianoLoop').checked) setTimeout(()=>playNote(note), 800);
-}
-
-// ----- TRUMPET / BRASS -----
-function playTrumpet(note){
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
-    let pitch=parseFloat(document.getElementById('trumpetPitch').value);
-    osc.connect(gain).connect(audioCtx.destination);
-    const trumpetFreq={'C':261.63,'E':329.63,'G':392.00};
-    osc.frequency.setValueAtTime(trumpetFreq[note]*pitch, audioCtx.currentTime);
-    osc.type='triangle';
-    osc.start(); osc.stop(audioCtx.currentTime+1);
-    if(document.getElementById('trumpetLoop').checked) setTimeout(()=>playTrumpet(note), 1000);
-}
-
-// ----- FX -----
-function playFX(type){
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.connect(gain).connect(audioCtx.destination);
-    if(type==='sweep'){ osc.frequency.setValueAtTime(200, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(2000, audioCtx.currentTime+1); gain.gain.setValueAtTime(0.3, audioCtx.currentTime);}
-    if(type==='riser'){ osc.frequency.setValueAtTime(100, audioCtx.currentTime); osc.frequency.linearRampToValueAtTime(2000, audioCtx.currentTime+2); gain.gain.setValueAtTime(0.25, audioCtx.currentTime);}
-    if(type==='whiteNoise'){
-        const bufferSize=audioCtx.sampleRate; const buffer=audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-        const data=buffer.getChannelData(0); for(let i=0;i<bufferSize;i++) data[i]=Math.random()*2-1;
-        const noise=audioCtx.createBufferSource(); noise.buffer=buffer; noise.connect(audioCtx.destination); noise.start(); return;
+/* ---------- Utilities: IR, phaser, chorus ---------- */
+function makeIR(seconds=2.4){
+  const sr = audioCtx.sampleRate; const len = Math.floor(sr * seconds);
+  const buf = audioCtx.createBuffer(2, len, sr);
+  for (let ch=0; ch<2; ch++){
+    const out = buf.getChannelData(ch);
+    for (let i=0;i<len;i++){
+      const t = i/len;
+      out[i] = (Math.random()*2-1) * Math.pow(1 - t, 2.6) * (0.6 + 0.4*ch);
     }
-    osc.start(); osc.stop(audioCtx.currentTime+1);
+  }
+  return buf;
+}
+function makePhaser(ctx, opts={stages:4, baseFreq:600, depth:200}){
+  const stages = opts.stages; const base = opts.baseFreq; const depth = opts.depth;
+  const input = ctx.createGain(); let node = input; const aps = [];
+  for (let i=0;i<stages;i++){ const ap = ctx.createBiquadFilter(); ap.type='allpass'; ap.frequency.value = base + (i*(depth/stages)); node.connect(ap); aps.push(ap); node = ap; }
+  const out = ctx.createGain(); node.connect(out);
+  const lfo = ctx.createOscillator(); lfo.type='sine'; lfo.frequency.value = 0.14; const lg = ctx.createGain(); lg.gain.value = depth; lfo.connect(lg); aps.forEach(ap=> lg.connect(ap.frequency)); lfo.start();
+  return {input, node: out};
+}
+function makeChorus(ctx){
+  const input = ctx.createGain(); const delay = ctx.createDelay(0.05); const lfo = ctx.createOscillator(); lfo.frequency.value = 0.2; const lg = ctx.createGain(); lg.gain.value = 0.01; lfo.connect(lg); lg.connect(delay.delayTime);
+  const wet = ctx.createGain(); wet.gain.value = 0.2; input.connect(delay); delay.connect(wet); const out = ctx.createGain(); wet.connect(out); input.connect(out); lfo.start(); return {input, output:out};
 }
 
-// ----- PRESETS -----
-function loadPreset(style){
-    if(style==='deep'){ playDrum('kick'); setTimeout(()=>playDrum('hihat'),300); playNote('C'); setTimeout(()=>playNote('E'),300);}
-    else if(style==='tech'){ playDrum('kick'); setTimeout(()=>playDrum('snare'),200);}
-    else if(style==='chill'){ playNote('C'); setTimeout(()=>playNote('E'),400); playTrumpet('C'); setTimeout(()=>playTrumpet('G'),600);}
-    else if(style==='random'){ const items=['kick','snare','hihat','C','E','G']; items.forEach(i=>setTimeout(()=>{ if(['kick','snare','hihat'].includes(i)) playDrum(i); else if(['C','E','G'].includes(i)) playNote(i); }, Math.random()*1000));}
+/* ---------- Generate realistic-ish samples (programmatic) ---------- */
+function generateGeneratedBuffers(){
+  const sr = audioCtx.sampleRate;
+  // kick
+  generated.kick = makeKick(audioCtx, 0.55);
+  generated.snare = makeClap(audioCtx, 0.18);
+  generated.hat = makeHat(audioCtx, 0.06);
+  // piano multisamples (C3..C4-ish)
+  const pianoNotes = ['C3','D3','E3','F3','G3','A3','B3','C4'];
+  pianoNotes.forEach(n => generated.piano[n] = makePianoSample(audioCtx, noteToHz(n), 1.6));
+  // trumpet multisamples
+  const trumpetNotes = ['C3','D3','E3','F3','G3','A3','B3','C4'];
+  trumpetNotes.forEach(n => generated.trumpet[n] = makeTrumpetSample(audioCtx, noteToHz(n), 1.4));
+  generated.pad = makePadLayer(audioCtx, 5.0);
 }
+function makeKick(ctx, seconds=0.55){
+  const sr = ctx.sampleRate; const len = Math.floor(sr*seconds); const buf = ctx.createBuffer(1,len,sr); const d = buf.getChannelData(0);
+  for (let i=0;i<len;i++){ const t = i/sr; const env = Math.exp(-t*7.8); const f = 160 * Math.pow(45/160, t/0.13); d[i] = Math.sin(2*Math.PI*f*t) * env * (1 - 0.12*Math.random()); }
+  return buf;
+}
+function makeClap(ctx, seconds=0.18){
+  const sr = ctx.sampleRate; const len = Math.floor(sr*seconds); const buf = ctx.createBuffer(1,len,sr); const d = buf.getChannelData(0);
+  for (let i=0;i<len;i++) d[i] = (Math.random()*2-1) * Math.pow(1 - i/len, 2.3);
+  return buf;
+}
+function makeHat(ctx, seconds=0.06){
+  const sr = ctx.sampleRate; const len = Math.floor(sr*seconds); const buf = ctx.createBuffer(1,len,sr); const d = buf.getChannelData(0);
+  for (let i=0;i<len;i++) d[i] = (Math.random()*2-1) * Math.pow(1 - i/len, 3.2);
+  return buf;
+}
+function makePianoSample(ctx, freq, seconds=1.4){
+  const sr = ctx.sampleRate; const len = Math.floor(sr*seconds); const buf = ctx.createBuffer(1,len,sr); const d = buf.getChannelData(0);
+  for (let i=0;i<len;i++){
+    const t = i/sr; const env = Math.exp(-t*2.6);
+    const v = 0.48*Math.sin(2*Math.PI*freq*t) + 0.22*Math.sin(2*Math.PI*freq*2*t) + 0.09*Math.sin(2*Math.PI*freq*3.01*t);
+    d[i] = (v + (Math.random()*2-1)*0.06*Math.exp(-t*70)) * env;
+  }
+  return buf;
+}
+function makeTrumpetSample(ctx, freq, seconds=1.2){
+  const sr = ctx.sampleRate; const len = Math.floor(sr*seconds); const buf = ctx.createBuffer(1,len,sr); const d = buf.getChannelData(0);
+  for (let i=0;i<len;i++){
+    const t = i/sr; const env = Math.exp(-t*2.2);
+    const carrier = 0.6*Math.sign(Math.sin(2*Math.PI*freq*t));
+    const breath = (Math.random()*2-1) * Math.pow(1 - t/seconds, 1.2) * 0.12;
+    d[i] = (carrier * 0.9 + breath) * env;
+  }
+  return buf;
+}
+function makePadLayer(ctx, seconds=4.8){
+  const sr = ctx.sampleRate; const len = Math.floor(sr*seconds); const buf = ctx.createBuffer(2,len,sr);
+  for (let ch=0; ch<2; ch++){
+    const d = buf.getChannelData(ch);
+    for (let i=0;i<len;i++){ const t=i/sr; const env = 0.5*(1-Math.cos(Math.PI*Math.min(1,t/0.8))) * Math.exp(-t/6.0); const base = Math.sin(2*Math.PI*110*t*(1+0.001*(Math.random()-0.5))); const hum = 0.15*Math.sin(2*Math.PI*220*t*(1 + 0.002*(Math.random()-0.5))); d[i] = (base + hum) * env * (0.6 + 0.2*ch); }
+  }
+  return buf;
+}
+
+/* ---------- Playback helpers ---------- */
+function playBufferAtTime(buffer, dest, time, gain=1.0){
+  const src = audioCtx.createBufferSource(); src.buffer = buffer;
+  const g = audioCtx.createGain(); g.gain.value = gain;
+  src.connect(g).connect(dest);
+  src.start(time);
+  return src;
+}
+
+/* ---------- Sequencer scheduling ---------- */
+function secondsPer16th(bpmLocal){ return (60.0/bpmLocal)/4.0; }
+function schedule(){
+  if (!audioCtx || !isPlaying) return;
+  const sp16 = secondsPer16th(bpm);
+  while (nextNoteTime < audioCtx.currentTime + lookAhead){
+    scheduleStep(currentStep, nextNoteTime);
+    const isOdd = (currentStep % 2) === 1;
+    const swingOffset = isOdd ? sp16 * swingAmount : 0;
+    nextNoteTime += sp16 + swingOffset;
+    currentStep = (currentStep + 1) % 16;
+  }
+  scheduleTimer = setTimeout(schedule, lookAhead * 400);
+}
+function scheduleStep(stepIdx, time){
+  highlightStepUI(stepIdx);
+  const anySolo = TRACKS.some(t=>t.solo);
+  TRACKS.forEach(tr=>{
+    if (tr.muted) return;
+    if (anySolo && !tr.solo) return;
+    const p = tr.pattern[stepIdx];
+    if (!p.on) return;
+    if (Math.random()*100 > p.prob) return;
+    const vel = p.vel/127;
+    const ttime = time + (p.offset || 0)/1000;
+    if (tr.id === 'kick') playBufferAtTime(generated.kick, tr.bus, ttime, vel), applyDuck(ttime);
+    else if (tr.id === 'snare') playBufferAtTime(generated.snare, tr.bus, ttime, vel*0.95);
+    else if (tr.id === 'hat') playBufferAtTime(generated.hat, tr.bus, ttime, vel*0.6);
+    else if (tr.id === 'bass') { playSynthBass(ttime, vel, stepIdx); }
+    else if (tr.id === 'pad') {
+      if (stepIdx % 4 === 0) {
+        // play pad layer as chord (use generated pad buffer segment)
+        const src = audioCtx.createBufferSource(); src.buffer = generated.pad;
+        const g = audioCtx.createGain(); g.gain.value = 0.18 * vel;
+        src.connect(g).connect(tr.bus);
+        src.start(ttime);
+      }
+    }
+  });
+}
+
+/* simple synth bass */
+function playSynthBass(time, vel, stepIdx){
+  const o = audioCtx.createOscillator(); o.type='sawtooth';
+  const base = 55; const patternNotes = [0,0,3,0,5,5,3,0,0,0,3,0,7,7,5,3];
+  const deg = patternNotes[stepIdx % patternNotes.length];
+  o.frequency.setValueAtTime(base * Math.pow(2, deg/12), time);
+  const g = audioCtx.createGain(); g.gain.setValueAtTime(0.0001, time); g.gain.linearRampToValueAtTime(0.9*vel, time+0.02); g.gain.exponentialRampToValueAtTime(0.0001, time+0.44);
+  const lp = audioCtx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=600;
+  o.connect(lp).connect(g).connect(findBus('bass'));
+  o.start(time); o.stop(time+0.9);
+}
+
+/* ducking */
+function applyDuck(t){
+  TRACKS.forEach(tr=>{
+    if (tr.id === 'kick') return;
+    const g = tr.bus.gain;
+    g.cancelScheduledValues(t);
+    g.setValueAtTime(g.value, t);
+    g.linearRampToValueAtTime(0.28, t+0.01);
+    g.setValueAtTime(0.28, t+0.02);
+    g.linearRampToValueAtTime(1.0, t+0.26);
+  });
+}
+
+/* find bus */
+function findBus(id){ const t = TRACKS.find(x=>x.id===id); return t ? t.bus : master; }
+
+/* ---------- UI: Sequencer render & interactions ---------- */
+let editMode = 'step';
+function renderSequencer(){
+  UI.sequencer.innerHTML = '';
+  TRACKS.forEach((tr,ti)=>{
+    const row = document.createElement('div'); row.className='track-row';
+    const meta = document.createElement('div'); meta.className='track-meta';
+    meta.innerHTML = `<div style="font-weight:700">${tr.name}</div><div class="small">${tr.type}</div><div style="margin-top:8px">Vol <input data-track="${ti}" type="range" min="0" max="1" step="0.01" value="${tr.gain}"></div>`;
+    row.appendChild(meta);
+    for (let s=0;s<16;s++){
+      const step = document.createElement('div'); step.className = 'step' + (tr.pattern[s].on ? ' on' : '');
+      step.dataset.track = ti; step.dataset.step = s;
+      step.innerHTML = `<div style="font-size:12px">${(s%4===0)?(s/4+1):''}</div><div class="mini">${tr.pattern[s].offset}ms</div><div class="vel">${Math.round(tr.pattern[s].vel)}</div>`;
+      step.addEventListener('mousedown', onStepClick);
+      step.addEventListener('contextmenu', ev=>{ ev.preventDefault(); const ti2=Number(step.dataset.track), si2=Number(step.dataset.step); if (editMode==='step'){ TRACKS[ti2].pattern[si2].on=false; renderSequencer(); } });
+      row.appendChild(step);
+    }
+    UI.sequencer.appendChild(row);
+  });
+  // vol sliders binding
+  document.querySelectorAll('input[data-track]').forEach(inp=> inp.addEventListener('input', (e)=> { const idx = Number(e.target.dataset.track); TRACKS[idx].gain = Number(e.target.value); TRACKS[idx].bus.gain.value = TRACKS[idx].gain; }));
+  renderMuteSolo();
+}
+function onStepClick(e){
+  const el = e.currentTarget; const ti = Number(el.dataset.track), si = Number(el.dataset.step);
+  if (editMode === 'step'){ TRACKS[ti].pattern[si].on = !TRACKS[ti].pattern[si].on; renderSequencer(); }
+  else if (editMode === 'vel'){ const choices=[40,80,110,127]; const cur=TRACKS[ti].pattern[si].vel; const idx=(choices.indexOf(cur)+1)%choices.length; TRACKS[ti].pattern[si].vel = choices[idx]; renderSequencer(); }
+  else if (editMode === 'prob'){ const choices=[25,50,75,100]; const cur=TRACKS[ti].pattern[si].prob; const idx=(choices.indexOf(cur)+1)%choices.length; TRACKS[ti].pattern[si].prob = choices[idx]; renderSequencer(); }
+  else if (editMode === 'offset'){ const choices=[-30,-10,0,10,30]; const cur = TRACKS[ti].pattern[si].offset || 0; const idx=(choices.indexOf(cur)+1)%choices.length; TRACKS[ti].pattern[si].offset = choices[idx]; renderSequencer(); }
+}
+function highlightStepUI(i){ document.querySelectorAll('.step.play').forEach(x=>x.classList.remove('play')); document.querySelectorAll(`.step[data-step="${i}"]`).forEach(x=>x.classList.add('play')); }
+function renderMuteSolo(){ const el = document.getElementById('muteSolo'); if (!el) return; el.innerHTML=''; TRACKS.forEach((tr,idx)=>{ const b = document.createElement('div'); b.className='smallpad'; b.innerHTML = `<div style="font-weight:700">${tr.name}</div><div style="display:flex;gap:6px;margin-top:6px"><button data-idx="${idx}" class="toggle muteBtn">${tr.muted?'Unmute':'Mute'}</button><button data-idx="${idx}" class="toggle soloBtn">${tr.solo?'Unsolo':'Solo'}</button></div>`; el.appendChild(b); });
+  document.querySelectorAll('.muteBtn').forEach(btn=> btn.onclick = ()=>{ const i=Number(btn.dataset.idx); TRACKS[i].muted = !TRACKS[i].muted; renderMuteSolo(); renderSequencer(); });
+  document.querySelectorAll('.soloBtn').forEach(btn=> btn.onclick = ()=>{ const i=Number(btn.dataset.idx); TRACKS[i].solo = !TRACKS[i].solo; const anySolo = TRACKS.some(t=>t.solo); TRACKS.forEach((t,idx)=> t.muted = anySolo && !t.solo); renderMuteSolo(); renderSequencer(); });
+}
+
+/* ---------- Piano keyboard ---------- */
+let liveOct = 3; UI.octLabel.innerText = liveOct;
+function buildPiano(){
+  UI.livePiano.innerHTML = '';
+  const whiteOrder = ['C','D','E','F','G','A','B'];
+  const baseOct = liveOct;
+  const wrapper = document.createElement('div'); wrapper.style.display='flex'; wrapper.style.position='relative';
+  whiteOrder.forEach(note=>{
+    const w = document.createElement('div'); w.className='white'; w.dataset.note = note + baseOct; w.innerText = note;
+    w.addEventListener('mousedown', ()=> playPianoNote(w.dataset.note));
+    wrapper.appendChild(w);
+    if (['C','D','F','G','A'].includes(note)){
+      const black = document.createElement('div'); black.className='black'; black.dataset.note = note + '#' + baseOct;
+      black.addEventListener('mousedown', ()=> playPianoNote(black.dataset.note));
+      wrapper.appendChild(black);
+    }
+  });
+  UI.livePiano.appendChild(wrapper);
+}
+function playPianoNote(label){
+  if (!audioCtx) initAudio();
+  const mapTo = mapToGeneratedPiano(label);
+  const buf = generated.piano[mapTo];
+  if (buf) {
+    const src = audioCtx.createBufferSource(); src.buffer = buf;
+    const g = audioCtx.createGain(); g.gain.value = 0.9;
+    src.connect(g).connect(findBus('pad'));
+    src.start();
+  } else {
+    // fallback synth
+    const freq = noteToHz(label);
+    playGenericSynthNow(freq);
+  }
+}
+function mapToGeneratedPiano(label){
+  if (label.includes('3')) return 'C3';
+  if (label.includes('4')) return 'C4';
+  return 'C3';
+}
+buildPiano();
+
+/* ---------- Voice Recorder: record & create pad ---------- */
+UI.voicePitch.addEventListener('input', ()=> UI.voicePitchVal.innerText = UI.voicePitch.value);
+
+UI.recStart.addEventListener('click', async ()=>{
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ alert('Microphone not available'); return; }
+  try{
+    mediaStream = await navigator.mediaDevices.getUserMedia({audio:true});
+    // connect mic optionally to a monitor (not required)
+    mediaRecorder = new MediaRecorder(mediaStream);
+    recordedChunks = [];
+    mediaRecorder.ondataavailable = e => { if (e.data.size>0) recordedChunks.push(e.data); };
+    mediaRecorder.onstop = async ()=>{
+      const blob = new Blob(recordedChunks, {type:'audio/webm'});
+      const arrayBuffer = await blob.arrayBuffer();
+      const buffer = await audioCtx.decodeAudioData(arrayBuffer.slice(0));
+      // store raw buffer for later processing
+      const id = 'v'+Date.now().toString(36);
+      voicePads.push({id, name:`Voice ${voicePads.length+1}`, buffer});
+      renderVoiceList();
+    };
+    mediaRecorder.start();
+    UI.recStart.innerText = 'Recording…';
+  }catch(e){ alert('Mic permission denied'); }
+});
+UI.recStop.addEventListener('click', ()=>{
+  if (mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop();
+  UI.recStart.innerText = 'Start Recording';
+  if (mediaStream){
+    mediaStream.getTracks().forEach(t=>t.stop());
+    mediaStream = null;
+  }
+});
+
+/* render voice pad list */
+function renderVoiceList(){
+  UI.voiceList.innerHTML = '';
+  voicePads.forEach((p, i)=>{
+    const wrap = document.createElement('div'); wrap.className = 'voice-pad';
+    const left = document.createElement('div'); left.style.flex='1'; left.innerHTML = `<div style="font-weight:700">${p.name}</div><div class="small">Length ${(p.buffer.length / p.buffer.sampleRate).toFixed(2)}s</div>`;
+    const right = document.createElement('div'); right.style.display='flex'; right.style.gap='6px';
+    const playBtn = document.createElement('button'); playBtn.className='btn ghost'; playBtn.innerText='Play'; playBtn.onclick = ()=> playVoicePad(i);
+    const assignBtn = document.createElement('button'); assignBtn.className='btn ghost'; assignBtn.innerText='Assign Pad → Pad Track'; assignBtn.onclick = ()=> assignPadToTrack(i);
+    const downloadBtn = document.createElement('button'); downloadBtn.className='btn'; downloadBtn.innerText='Download (Processed)'; downloadBtn.onclick = ()=> downloadProcessedVoice(i);
+    const delBtn = document.createElement('button'); delBtn.className='btn ghost'; delBtn.innerText='Delete'; delBtn.onclick = ()=> { voicePads.splice(i,1); renderVoiceList(); };
+    right.appendChild(playBtn); right.appendChild(assignBtn); right.appendChild(downloadBtn); right.appendChild(delBtn);
+    wrap.appendChild(left); wrap.appendChild(right);
+    UI.voiceList.appendChild(wrap);
+  });
+}
+
+/* play voice pad through live FX chain */
+function playVoicePad(index){
+  if (!audioCtx) initAudio();
+  const pad = voicePads[index];
+  if (!pad) return;
+  // create source
+  const src = audioCtx.createBufferSource(); src.buffer = pad.buffer;
+  // apply pitch shift via playbackRate (approximate semitone shift)
+  const semis = Number(UI.voicePitch.value) || 0;
+  src.playbackRate.value = Math.pow(2, semis/12);
+  // FX chain: distortion -> delay -> reverb -> bus
+  let node = src;
+  if (Number(UI.voiceDist.value) > 0.001){
+    const dist = makeDistortion(audioCtx, Number(UI.voiceDist.value)*0.9);
+    node.connect(dist);
+    node = dist;
+  }
+  // delay (wet)
+  const delayN = audioCtx.createDelay(1.2);
+  delayN.delayTime.value = Number(UI.voiceDelay.value) || 0.18;
+  const dG = audioCtx.createGain(); dG.gain.value = 0.28 * Number(UI.voiceDelay.value);
+  node.connect(delayN); delayN.connect(dG); dG.connect(master); // send to master
+  // reverb send
+  const rvSend = audioCtx.createGain(); rvSend.gain.value = Number(UI.voiceReverb.value) || 0.3;
+  node.connect(rvSend); rvSend.connect(reverbNode); reverbNode.connect(reverbSend); // reverb handled in master chain
+  // connect main node to master bus
+  const g = audioCtx.createGain(); g.gain.value = 0.95;
+  node.connect(g); g.connect(master);
+  src.start();
+}
+
+/* assign pad to pad track (so it can be sequenced) */
+function assignPadToTrack(index){
+  const pad = voicePads[index];
+  if (!pad) return;
+  const t = TRACKS.find(x=>x.id==='pad');
+  if (!t) return;
+  t.sample = pad; // attach sample object
+  alert(`Assigned ${pad.name} to Pad track`);
+}
+
+/* download processed voice: render via OfflineAudioContext with applied FX and return WAV */
+async function downloadProcessedVoice(index){
+  const pad = voicePads[index];
+  if (!pad) return;
+  // build an offline graph: create OfflineAudioContext with length = pad.buffer.duration * playbackRate * 1.5 (extra tail)
+  const semis = Number(UI.voicePitch.value) || 0;
+  const rate = Math.pow(2, semis/12);
+  const duration = pad.buffer.duration / rate + 2.5; // add tail for reverb/delay
+  const sr = audioCtx.sampleRate;
+  const off = new OfflineAudioContext(2, Math.ceil(duration * sr), sr);
+  // create source in offline
+  const src = off.createBufferSource();
+  // If pitch shift via playbackRate:
+  src.buffer = pad.buffer;
+  src.playbackRate.value = rate;
+  // distortion (waveshaper)
+  let node = src;
+  if (Number(UI.voiceDist.value) > 0.001){
+    const dist = makeDistortionOffline(off, Number(UI.voiceDist.value)*0.9);
+    node.connect(dist);
+    node = dist;
+  }
+  // delay
+  const delayN = off.createDelay(1.2);
+  delayN.delayTime.value = Number(UI.voiceDelay.value) || 0.18;
+  const dG = off.createGain(); dG.gain.value = 0.28 * Number(UI.voiceDelay.value);
+  node.connect(delayN); delayN.connect(dG); dG.connect(off.destination);
+  // reverb
+  const conv = off.createConvolver();
+  conv.buffer = makeOfflineIR(off, 2.6);
+  const rvG = off.createGain(); rvG.gain.value = Number(UI.voiceReverb.value) || 0.32;
+  node.connect(conv); conv.connect(rvG); rvG.connect(off.destination);
+  // direct to destination
+  node.connect(off.destination);
+  src.start(0);
+  const rendered = await off.startRendering();
+  // convert to WAV and download
+  const wav = audioBufferToWav(rendered);
+  const blob = new Blob([wav], {type:'audio/wav'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = (pad.name || 'voice') + '_processed.wav'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+/* ---------- Helper: create offline IR (similar to makeIR but for OfflineAudioContext) ---------- */
+function makeOfflineIR(offCtx, seconds=2.4){
+  const sr = offCtx.sampleRate; const len = Math.floor(sr * seconds); const buf = offCtx.createBuffer(2,len,sr);
+  for (let ch=0; ch<2; ch++){
+    const d = buf.getChannelData(ch);
+    for (let i=0;i<len;i++){
+      const t = i/len; d[i] = (Math.random()*2-1) * Math.pow(1 - t, 2.6) * (0.6 + 0.4*ch);
+    }
+  }
+  return buf;
+}
+
+/* ---------- Distortion utils ---------- */
+function makeDistortion(ctx, amount=0.5){
+  const wave = ctx.createWaveShaper();
+  wave.curve = makeDistortionCurve(amount*400);
+  wave.oversample = '4x';
+  return wave;
+}
+function makeDistortionCurve(amount){
+  const k = typeof amount === 'number' ? amount : 50;
+  const n = 44100; const curve = new Float32Array(n); const deg = Math.PI / 180;
+  for (let i=0;i<n;i++){
+    const x = i * 2 / n - 1;
+    curve[i] = (3 + k) * x * 20 * deg / (Math.PI + k * Math.abs(x));
+  }
+  return curve;
+}
+function makeDistortionOffline(off, amount=0.5){
+  const wave = off.createWaveShaper();
+  wave.curve = makeDistortionCurve(amount*400);
+  wave.oversample = '4x';
+  return wave;
+}
+
+/* ---------- WAV export helper ---------- */
+function audioBufferToWav(buffer){
+  const numChannels = buffer.numberOfChannels;
+  const sampleRate = buffer.sampleRate;
+  const format = 1;
+  const bitDepth = 16;
+  const samples = interleave(buffer);
+  const bufferLen = 44 + samples.length * 2;
+  const arrayBuffer = new ArrayBuffer(bufferLen);
+  const view = new DataView(arrayBuffer);
+  writeString(view, 0, 'RIFF'); view.setUint32(4, 36 + samples.length * 2, true);
+  writeString(view, 8, 'WAVE'); writeString(view, 12, 'fmt '); view.setUint32(16, 16, true); view.setUint16(20, format, true);
+  view.setUint16(22, numChannels, true); view.setUint32(24, sampleRate, true); view.setUint32(28, sampleRate * numChannels * bitDepth/8, true);
+  view.setUint16(32, numChannels * bitDepth/8, true); view.setUint16(34, bitDepth, true);
+  writeString(view, 36, 'data'); view.setUint32(40, samples.length * 2, true);
+  let offset = 44;
+  for (let i=0;i<samples.length;i++, offset+=2){
+    const s = Math.max(-1, Math.min(1, samples[i]));
+    view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+  }
+  return arrayBuffer;
+  function writeString(view, offset, string){ for (let i=0;i<string.length;i++) view.setUint8(offset + i, string.charCodeAt(i)); }
+  function interleave(buffer){
+    const channels = []; for (let i=0;i<buffer.numberOfChannels;i++) channels.push(buffer.getChannelData(i));
+    const length = channels[0].length;
+    const result = new Float32Array(length * channels.length);
+    let idx = 0;
+    for (let i=0;i<length;i++){
+      for (let ch=0; ch<channels.length; ch++) result[idx++] = channels[ch][i];
+    }
+    return result;
+  }
+}
+
+/* ---------- Utilities: map note -> Hz ---------- */
+const KEY_MAP = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+function noteToHz(label){
+  const parts = label.match(/^([A-G]#?)(-?\d+)/);
+  if (!parts) return 261.63;
+  const note = parts[1]; const oct = Number(parts[2]);
+  const noteIndex = KEY_MAP.indexOf(note);
+  const midi = 12 * (oct + 1) + noteIndex;
+  return 440 * Math.pow(2, (midi - 69)/12);
+}
+
+/* ---------- Misc generated voices & helper functions ---------- */
+function playGenericSynthNow(freq){
+  const o = audioCtx.createOscillator(); o.type = document.getElementById('osc1').value || 'sawtooth';
+  o.frequency.value = freq;
+  const g = audioCtx.createGain(); g.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+  const a = Number(document.getElementById('envA').value), d = Number(document.getElementById('envD').value), s = Number(document.getElementById('envS').value), r = Number(document.getElementById('envR').value);
+  g.gain.linearRampToValueAtTime(s, audioCtx.currentTime + a + d);
+  g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + a + d + r + 0.05);
+  const filter = audioCtx.createBiquadFilter(); filter.type='lowpass'; filter.frequency.value = Number(document.getElementById('filterCut').value || 2400);
+  o.connect(filter).connect(g).connect(master);
+  o.start(); o.stop(audioCtx.currentTime + a + d + r + 0.1);
+}
+
+/* ---------- Event wiring & presets ---------- */
+UI.startAudio.addEventListener('click', async ()=>{
+  initAudio();
+  if (audioCtx.state === 'suspended') await audioCtx.resume();
+  UI.startAudio.innerText = 'Audio Ready';
+  renderSequencer();
+  renderVoiceList();
+});
+UI.playBtn.addEventListener('click', ()=>{
+  if (!audioCtx) initAudio();
+  if (!isPlaying){ isPlaying = true; currentStep = 0; nextNoteTime = audioCtx.currentTime + 0.05; bpm = Number(UI.bpm.value); schedule(); UI.playBtn.innerText='Playing…'; }
+  else { isPlaying=false; clearTimeout(scheduleTimer); UI.playBtn.innerText='Play'; }
+});
+UI.stopBtn.addEventListener('click', ()=>{ isPlaying=false; clearTimeout(scheduleTimer); currentStep=0; UI.playBtn.innerText='Play'; });
+UI.bpm.addEventListener('input', (e)=>{ bpm = Number(e.target.value); UI.bpmVal.innerText = bpm; });
+UI.swing.addEventListener('input', (e)=>{ swingAmount = Number(e.target.value)/100; UI.swingVal.innerText = e.target.value; });
+
+UI.modeStep.addEventListener('click', ()=>{ editMode='step'; });
+UI.modeVel.addEventListener('click', ()=>{ editMode='vel'; });
+UI.modeProb.addEventListener('click', ()=>{ editMode='prob'; });
+UI.modeOffset.addEventListener('click', ()=>{ editMode='offset'; });
+
+UI.assignBtn.addEventListener('click', ()=>{ const inst = UI.instSelect.value; const trackId = UI.assignTrack.value; const t = TRACKS.find(x=>x.id === trackId); if (t){ t.instrument = inst; alert(`Assigned ${inst} to ${t.name}`); } });
+
+UI.presetDeep.addEventListener('click', presetDeep);
+UI.presetTech.addEventListener('click', presetTech);
+UI.presetProg.addEventListener('click', presetProg);
+UI.presetChill.addEventListener('click', presetChill);
+UI.randMusical.addEventListener('click', randomizeMusical);
+UI.randSparse.addEventListener('click', ()=>{ clearPatterns(); for (let i=0;i<16;i++) if (Math.random()>0.86) TRACKS[1].pattern[i].on=true; renderSequencer(); });
+UI.chefRand.addEventListener('click', ()=>{ for (let i=0;i<4;i++) randomizeMusical(); });
+
+// presets:
+function clearPatterns(){ TRACKS.forEach(t=> t.pattern.forEach(p=>{ p.on=false; p.vel=100; p.prob=100; p.offset=0; })); renderSequencer(); }
+function presetDeep(){ clearPatterns(); UI.bpm.value=122; UI.bpmVal.innerText=122; [0,4,8,12].forEach(i=> TRACKS[0].pattern[i].on=true); [4,12].forEach(i=> TRACKS[1].pattern[i].on=true); for(let i=1;i<16;i+=2) TRACKS[2].pattern[i].on=true; [0,2,6,10].forEach(i=> TRACKS[3].pattern[i].on=true); [0,8].forEach(i=> TRACKS[4].pattern[i].on=true); renderSequencer(); }
+function presetTech(){ clearPatterns(); UI.bpm.value=126; UI.bpmVal.innerText=126; [0,6,8,14].forEach(i=> TRACKS[0].pattern[i].on=true); [4,10].forEach(i=> TRACKS[1].pattern[i].on=true); for(let i=0;i<16;i+=2) TRACKS[2].pattern[i].on=true; [0,3,7,9].forEach(i=> TRACKS[3].pattern[i].on=true); renderSequencer(); }
+function presetProg(){ clearPatterns(); UI.bpm.value=120; UI.bpmVal.innerText=120; [0,4,8,12].forEach(i=> TRACKS[0].pattern[i].on=true); [2,6,10,14].forEach(i=> TRACKS[1].pattern[i].on=true); for(let i=0;i<16;i+=2) TRACKS[2].pattern[i].on=true; [0,4,8,12].forEach(i=> TRACKS[3].pattern[i].on=true); [0,8].forEach(i=> TRACKS[4].pattern[i].on=true); renderSequencer(); }
+function presetChill(){ clearPatterns(); UI.bpm.value=108; UI.bpmVal.innerText=108; [0,8].forEach(i=> TRACKS[0].pattern[i].on=true); [4,12].forEach(i=> TRACKS[1].pattern[i].on=true); for(let i=0;i<16;i+=2) TRACKS[2].pattern[i+1].on=true; [0,3,7,10].forEach(i=> TRACKS[3].pattern[i].on=true); [0,8].forEach(i=> TRACKS[4].pattern[i].on=true); renderSequencer(); }
+function randomizeMusical(){ clearPatterns(); [0,4,8,12].forEach(i=> TRACKS[0].pattern[i].on=true); for(let i=1;i<16;i+=2) if (Math.random()>0.6) TRACKS[2].pattern[i].on=true; for(let i=0;i<16;i++) if (Math.random()>0.8) TRACKS[3].pattern[i].on=true; renderSequencer(); }
+
+/* ---------- Utils: audio buffer helpers ---------- */
+/* (some helper functions used above are already defined) */
+
+/* ---------- Init render ---------- */
+renderSequencer();
+renderVoiceList();
+buildPiano();
+
+/* ---------- Done ---------- */
+
 </script>
 </body>
 </html>
